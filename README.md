@@ -63,4 +63,4 @@ See source code files for copyright notices.
 
 ## License
 
-The examples in this repository are licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for the full license text.
+The examples in this repository are licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for the full license text. The examples use FICO&reg; Xpress software. By running it, you agree to the Community License terms of the [Xpress Shrinkwrap License Agreement](https://community.fico.com/s/contentdocument/06980000002h0i5AAA) with respect to the FICO&reg; Xpress software. See the [licensing options](https://www.fico.com/en/fico-xpress-trial-and-licensing-options) overview for additional details and information about obtaining a paid license.
