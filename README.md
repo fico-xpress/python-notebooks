@@ -14,6 +14,8 @@ The FICO&reg; Xpress Python interface is a powerful tool for optimization modeli
 
 Example name | Description | Notes
 -------------|-------------|----------------------
+[callback_newnode](basic_api_examples/callback_newnode.ipynb) | Using a callback function during the branch and bound search |
+[indicators](basic_api_examples/indicators.ipynb) | Using indicator constraints | 
 [load_problem](basic_api_examples/load_problem.ipynb) | Comparison of model building performance between low-level and high-level methods | 
 [loadlp](basic_api_examples/loadlp.ipynb) | Using the low-level API function *loadproblem()* | 
 [logic_cons](basic_api_examples/logic_cons.ipynb) | Using general constraints for logical expressions | 
@@ -29,7 +31,7 @@ Example name | Description | Notes
 -------------|-------------|----------------------
 [facility_location](modeling_examples/facility_location.ipynb) | A basic facility location problem | 
 [firestation_scipy](modeling_examples/firestation_scipy.ipynb) | Using a SciPy sparse matrix formulation to model the fire station location problem | 
-[inscribed_square](modeling_examples/inscribed_square.ipynb) | Inscribed square problem solved with Xpress NonLinear or Xpress Global |
+[inscribed_square](modeling_examples/inscribed_square.ipynb) | Inscribed square problem solved with Xpress NonLinear or Xpress Global | To run Xpress NonLinear with Knitro, a Knitro license is required.
 [markowitz_multiobj](modeling_examples/markowitz_multiobj.ipynb) | Multi-objective formulation of Markowitz portfolio optimization problem | 
 [n_queens](modeling_examples/n_queens.ipynb) | The problem of placing $n$ queens on a chessboard | 
 [sudoku](modeling_examples/sudoku.ipynb) | Solving a Sudoku problem | 
