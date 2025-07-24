@@ -32,11 +32,14 @@ Example name | Description | Notes | Video
 
 Example name | Description | Notes | Video
 -------------|-------------|-------|------
+[assignment](modeling_examples/assignment.ipynb) | One-to-one assignment of projects to persons to maximize the overall preference level | |
+[bin_packing](modeling_examples/bin_packing.ipynb) | Pack items into bins to minimize the number of bins used | Showcases the use of the `xp.Dot` operator |
 [circle_packing](modeling_examples/circle_packing.ipynb) | Place $N$ disjoint circles in the unit square with Xpress Global | |
 [facility_location](modeling_examples/facility_location.ipynb) | A basic facility location problem | |
 [firestation_scipy](modeling_examples/firestation_scipy.ipynb) | Using a SciPy sparse matrix formulation to model the fire station location problem | |
 [inscribed_square](modeling_examples/inscribed_square.ipynb) | Inscribed square problem solved with Xpress NonLinear or Xpress Global | To run Xpress NonLinear with Knitro, a Knitro license is required. | [Link](https://youtu.be/kOmJ1NltlnY?si=C7AZKQjR8xiA7VBs&t=86)
 [markowitz_multiobj](modeling_examples/markowitz_multiobj.ipynb) | Multi-objective formulation of Markowitz portfolio optimization problem | | [Link](https://youtu.be/DkEmAyCttyA?si=pUeOItR7YQ1QO8Qy&t=192)
+[max_flow](modeling_examples/max_flow.ipynb) | Finding the maximum number of vertex-disjoint paths between two nodes in a telecommunications network | |
 [n_queens](modeling_examples/n_queens.ipynb) | The problem of placing $n$ queens on a chessboard | |
 [pairwise_distance](modeling_examples/pairwise_distance.ipynb) | Determine the positions of $N$ points in $D$-dimensional space | Interactive 3D visualization |
 [sudoku](modeling_examples/sudoku.ipynb) | Solving a Sudoku problem | |
