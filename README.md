@@ -23,6 +23,7 @@ Example name | Description | Notes | Video
 [loadlp](basic_api_examples/loadlp.ipynb) | Using the low-level API function *loadproblem()* | |
 [logic_cons](basic_api_examples/logic_cons.ipynb) | Using general constraints for logical expressions | | [Link](https://youtu.be/HppWH2xS4ks?si=D2ddQD365Fb15xl2&t=146)
 [modeling](basic_api_examples/modeling.ipynb) | Modeling a basic MIP problem | | [Link](https://youtu.be/t9jvl9pCHOg?si=9arlsZFnqwvtBA85&t=291)
+[multiobj_knapsack.ipynb](basic_api_examples/multiobj_knapsack.ipynb) | Multi-objective knapsack problem with blended and lexicographic approaches | |
 [numpy_arrays](basic_api_examples/numpy_arrays.ipynb) | Using the numerical library *NumPy* | | [Link](https://youtu.be/JK4GqNp_h9E?si=BkWsZk1xPqK9JY4C&t=114)
 [piecewise_linear](basic_api_examples/piecewise_linear.ipynb) | Using piecewise linear functions | | [Link](https://youtu.be/IefpyeLH8BE?si=eEIQmXhiD50n61yB&t=125)
 [sos](basic_api_examples/sos.ipynb) | Defining Special Ordered Set (SOS) constraints | | [Link](https://youtu.be/zgK96WHroRI?si=UIw45GZrwl1twlRb&t=84)
