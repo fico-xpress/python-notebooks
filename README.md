@@ -20,7 +20,7 @@ Example name | Description | Notes | Video
 [callback_newnode](basic_api_examples/callback_newnode.ipynb) | Using a callback function during the branch and bound search | | [Link](https://youtu.be/Ej75QhxTQYg?si=Ha8xCx3ItliNTxna&t=183)
 [indicators](basic_api_examples/indicators.ipynb) | Using indicator constraints | | [Link](https://youtu.be/GPYZkf3J1Zk?si=YYL5jnHdClz7_APD&t=49)
 [load_problem](basic_api_examples/load_problem.ipynb) | Comparison of model building performance between low-level and high-level methods | | [Link](https://youtu.be/z0YnDks8AJU?si=DUkQFIe80_RHHjV2&t=149)
-[loadlp](basic_api_examples/loadlp.ipynb) | Using the low-level API function *loadproblem()* | |
+[loadlp](basic_api_examples/loadlp.ipynb) | Using the low-level API function *loadLP()* | |
 [logic_cons](basic_api_examples/logic_cons.ipynb) | Using general constraints for logical expressions | | [Link](https://youtu.be/HppWH2xS4ks?si=D2ddQD365Fb15xl2&t=146)
 [modeling](basic_api_examples/modeling.ipynb) | Modeling a basic MIP problem | | [Link](https://youtu.be/t9jvl9pCHOg?si=9arlsZFnqwvtBA85&t=291)
 [multiobj_knapsack.ipynb](basic_api_examples/multiobj_knapsack.ipynb) | Multi-objective knapsack problem with blended and lexicographic approaches | |
@@ -43,6 +43,7 @@ Example name | Description | Notes | Video
 [max_flow](modeling_examples/max_flow.ipynb) | Finding the maximum number of vertex-disjoint paths between two nodes in a telecommunications network | |
 [n_queens](modeling_examples/n_queens.ipynb) | The problem of placing $n$ queens on a chessboard | |
 [pairwise_distance](modeling_examples/pairwise_distance.ipynb) | Determine the positions of $N$ points in $D$-dimensional space | Interactive 3D visualization |
+[portfolio_pandas](modeling_examples/portfolio_pandas.ipynb) | Showcases the use of Pandas operations to generate expressions and constraints for a portfolio selection problem | Requires Xpress version 9.8 or later |
 [sudoku](modeling_examples/sudoku.ipynb) | Solving a Sudoku problem | |
 [tsp_callbacks](modeling_examples/tsp_callbacks.ipynb) | Solving a TSP problem using callbacks | This example requires a full license of the FICO&reg; Xpress Optimizer. |
 [unitcommitment_indicators](modeling_examples/unitcommitment_indicators.ipynb) | Unit commitment problem formulation with indicator constraints | |
