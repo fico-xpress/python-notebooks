@@ -57,7 +57,7 @@ Example name | Description | Notes | Video
 ## Running the examples using GitHub codespaces
 
 1. **Open Codespaces and create a codespace**:
-   - Click on the **"Code"** (green) button on the [repository page](https://github.com/fico-xpress/python-notebooks).
+   - Click on the **"Code"** (green) button on this [repository page](https://github.com/fico-xpress/python-notebooks).
    - On the **"Codespaces"** tab, select **"Create a Codespace on main"**. This will set up a cloud-based development environment for you.
 
 2. **Open Python Notebook**:
@@ -68,12 +68,13 @@ Example name | Description | Notes | Video
 3. **Run the Notebook**:
    - Run a code cell in the Python notebook as you would normally do in a local environment.
    - When running for the first time, select "Install/Enable suggested extensions: Python + Jupyter" as suggested in the pop-up window at the top of the screen.
-   - After installation, the Python environment is automatically selected when running the code cell again. You are all set to run all the code cells.
+   - After installation, select the installed Python environment and wait for the code cell to be executed. You are all set to run all the code cells.
 
 ## Legal
 
 See source code files for copyright notices.
 
 ## License
+
 
 The examples in this repository are licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for the full license text. The examples use FICO&reg; Xpress software. By running it, you agree to the Community License terms of the [Xpress Shrinkwrap License Agreement](https://www.fico.com/en/shrinkwrap-license-agreement-fico-xpress-optimization-suite-on-premises) with respect to the FICO&reg; Xpress software. See the [licensing options](https://www.fico.com/en/fico-xpress-trial-and-licensing-options) overview for additional details and information about obtaining a paid license.
