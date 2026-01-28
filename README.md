@@ -44,7 +44,7 @@ Example name | Description | Notes | Video
 [max_flow](modeling_examples/max_flow.ipynb) | Finding the maximum number of vertex-disjoint paths between two nodes in a telecommunications network | |
 [n_queens](modeling_examples/n_queens.ipynb) | The problem of placing $n$ queens on a chessboard | |
 [pairwise_distance](modeling_examples/pairwise_distance.ipynb) | Determine the positions of $N$ points in $D$-dimensional space | Interactive 3D visualization |
-[portfolio_pandas](modeling_examples/portfolio_pandas.ipynb) | Showcases the use of Pandas operations to generate expressions and constraints for a portfolio selection problem | Requires Xpress version 9.8 or later |
+[portfolio_pandas](modeling_examples/portfolio_pandas.ipynb) | Showcases the use of Pandas operations to generate expressions and constraints for a portfolio selection problem | Requires Xpress version 9.8 or later, and a Pandas version < 3.0 |
 [sudoku](modeling_examples/sudoku.ipynb) | Solving a Sudoku problem | |
 [tsp_callbacks](modeling_examples/tsp_callbacks.ipynb) | Solving a TSP problem using callbacks | This example requires a full license of the FICO&reg; Xpress Optimizer. |
 [unitcommitment_indicators](modeling_examples/unitcommitment_indicators.ipynb) | Unit commitment problem formulation with indicator constraints | |
