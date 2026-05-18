@@ -22,7 +22,7 @@ Example name | Description | Notes | Video
 [load_problem](basic_api_examples/load_problem.ipynb) | Comparison of model building performance between low-level and high-level methods | | [Link](https://youtu.be/z0YnDks8AJU?si=DUkQFIe80_RHHjV2&t=149)
 [loadlp](basic_api_examples/loadlp.ipynb) | Using the low-level API function *loadLP()* | |
 [logic_cons](basic_api_examples/logic_cons.ipynb) | Using general constraints for logical expressions | | [Link](https://youtu.be/HppWH2xS4ks?si=D2ddQD365Fb15xl2&t=146)
-[modeling](basic_api_examples/modeling.ipynb) | Modeling a basic MIP problem | | [Link](https://youtu.be/t9jvl9pCHOg?si=9arlsZFnqwvtBA85&t=291)
+[modeling](basic_api_examples/modeling.ipynb) | Modeling a basic MIP problem | Requires Xpress version 9.9 or later | [Link](https://youtu.be/t9jvl9pCHOg?si=9arlsZFnqwvtBA85&t=291)
 [multiobj_knapsack.ipynb](basic_api_examples/multiobj_knapsack.ipynb) | Multi-objective knapsack problem with blended and lexicographic approaches | |
 [numpy_arrays](basic_api_examples/numpy_arrays.ipynb) | Using the numerical library *NumPy* | | [Link](https://youtu.be/JK4GqNp_h9E?si=BkWsZk1xPqK9JY4C&t=114)
 [piecewise_linear](basic_api_examples/piecewise_linear.ipynb) | Using piecewise linear functions | | [Link](https://youtu.be/IefpyeLH8BE?si=eEIQmXhiD50n61yB&t=125)
@@ -37,14 +37,16 @@ Example name | Description | Notes | Video
 [bin_packing](modeling_examples/bin_packing.ipynb) | Pack items into bins to minimize the number of bins used | Showcases the use of the `xp.Dot` operator |
 [campaign_polars](modeling_examples/campaign_polars.ipynb) | Campaign conversion optimization to maximize expected value subject to budget and channel capacity constraints | Showcases the use of Polars dataframes to generate aggregate expressions |
 [circle_packing](modeling_examples/circle_packing.ipynb) | Place $N$ disjoint circles in the unit square with Xpress Global | |
-[facility_location](modeling_examples/facility_location.ipynb) | A basic facility location problem | |
+[diagnose_infeasible](modeling_examples/diagnose_infeasible.ipynb) | Diagnosing infeasible problems using IIS (Irreducible Infeasible Sets) | Includes a reusable helper function. Requires Xpress version 9.9 or later | |
+[diagnose_unbounded](modeling_examples/diagnose_unbounded.ipynb) | Diagnosing unbounded LP problems using primal rays | Includes a reusable helper function |
+[facility_location](modeling_examples/facility_location.ipynb) | A basic facility location problem | Requires Xpress version 9.9 or later |
 [firestation_scipy](modeling_examples/firestation_scipy.ipynb) | Using a SciPy sparse matrix formulation to model the fire station location problem | |
 [inscribed_square](modeling_examples/inscribed_square.ipynb) | Inscribed square problem solved with Xpress NonLinear or Xpress Global | To run Xpress NonLinear with Knitro, a Knitro license is required. | [Link](https://youtu.be/kOmJ1NltlnY?si=C7AZKQjR8xiA7VBs&t=86)
 [markowitz_multiobj](modeling_examples/markowitz_multiobj.ipynb) | Multi-objective formulation of Markowitz portfolio optimization problem | | [Link](https://youtu.be/DkEmAyCttyA?si=pUeOItR7YQ1QO8Qy&t=192)
 [max_flow](modeling_examples/max_flow.ipynb) | Finding the maximum number of vertex-disjoint paths between two nodes in a telecommunications network | |
 [n_queens](modeling_examples/n_queens.ipynb) | The problem of placing $n$ queens on a chessboard | |
 [pairwise_distance](modeling_examples/pairwise_distance.ipynb) | Determine the positions of $N$ points in $D$-dimensional space | Interactive 3D visualization |
-[portfolio_pandas](modeling_examples/portfolio_pandas.ipynb) | Showcases the use of Pandas operations to generate expressions and constraints for a portfolio selection problem | Requires Xpress version 9.8 or later, and a Pandas version < 3.0 |
+[portfolio_pandas](modeling_examples/portfolio_pandas.ipynb) | Showcases the use of Pandas operations to generate expressions and constraints for a portfolio selection problem | Requires Xpress version 9.8 or later |
 [sudoku](modeling_examples/sudoku.ipynb) | Solving a Sudoku problem | |
 [tsp_callbacks](modeling_examples/tsp_callbacks.ipynb) | Solving a TSP problem using callbacks | This example requires a full license of the FICO&reg; Xpress Optimizer. |
 [unitcommitment_indicators](modeling_examples/unitcommitment_indicators.ipynb) | Unit commitment problem formulation with indicator constraints | |
@@ -70,11 +72,8 @@ Example name | Description | Notes | Video
    - When running for the first time, select "Install/Enable suggested extensions: Python + Jupyter" as suggested in the pop-up window at the top of the screen.
    - After installation, select the installed Python environment and wait for the code cell to be executed. You are all set to run all the code cells.
 
-## Legal
+## Legal and license requirements
 
-See source code files for copyright notices.
+The examples in this repository are licensed under the Apache License, Version 2.0. You may not use these files except in compliance with the License. You may obtain a copy of the License at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0), or see [LICENSE](LICENSE) for the full license text. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-## License
-
-
-The examples in this repository are licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for the full license text. The examples use FICO&reg; Xpress software. By running it, you agree to the Community License terms of the [Xpress Shrinkwrap License Agreement](https://www.fico.com/en/shrinkwrap-license-agreement-fico-xpress-optimization-suite-on-premises) with respect to the FICO&reg; Xpress software. See the [licensing options](https://www.fico.com/en/fico-xpress-trial-and-licensing-options) overview for additional details and information about obtaining a paid license.
+The examples use FICO&reg; Xpress software. By running them, you agree to the Community License terms of the [Xpress Shrinkwrap License Agreement](https://www.fico.com/en/shrinkwrap-license-agreement-fico-xpress-optimization-suite-on-premises) with respect to the FICO&reg; Xpress software. See the [licensing options](https://www.fico.com/en/fico-xpress-trial-and-licensing-options) overview for additional details and information about obtaining a paid license.
