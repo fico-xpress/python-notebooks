@@ -1,0 +1,85 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file pricebrai_p.mos
+   ``````````````````
+   Modeling price breaks:
+   All item discount pricing
+
+   This implementation represents the situation where we
+   buy a certain number of items and we get discounts on
+   all items that we buy if the quantity we buy lies in
+   certain price bands. We have three price bands. If we
+   buy a number of items in [0,B1) then for each item we
+   pay COST1, if the quantity we buy lies in [B1,B2) we
+   pay COST2 for each item. Finally if we buy an amount
+   in [B2,B3) then we pay an amount COST3 for each item.
+   This sort of pricing is called all item discount pricing.
+   
+   To model these item price breaks we use binary variables 
+   b(i) which takes value 1 if we pay a unit cost of COST(i).
+   We also define continuous decision variables x1, x2 and 
+   x3 which represent the number of items bought at price 
+   COST1, COST2, and COST3, respectively.
+
+   - for use with MoselPy -
+
+   (c) 2008 Fair Isaac Corporation
+       author: S. Heipcke, Sep. 2006, rev. 2026
+*******************************************************!)
+
+model "All item discount"
+ uses "mmxprs"
+ 
+
+ parameters
+  DATASOURCE = "../../data/intro/pricebrai_p.dat"
+  OUTFILE    = ""
+  NB         = 3                      ! Number of price bands
+ end-parameters
+
+ declarations
+  BREAKS = 1..NB
+  DEM: integer                          ! Demand
+  COST: array(BREAKS) of real           ! Cost per unit
+  x: array(BREAKS) of mpvar             ! Number of items bought at a price
+  b: array(BREAKS) of mpvar             ! Indicators of price bands
+  B: array(0..NB) of real               ! Break points of cost function
+  sol_x: array(BREAKS) of real
+ end-declarations
+
+ initializations from DATASOURCE
+  DEM B COST
+ end-initializations
+ 
+ forall(i in BREAKS) b(i) is_binary
+
+(! Alternatively
+ sum(i in BREAKS) B(i)*b(i) is_sos1
+!) 
+
+! Objective: total price
+ TotalCost:= sum(i in BREAKS) COST(i)*x(i)  
+
+! Meet the demand
+ sum(i in BREAKS) x(i) = DEM
+
+! Lower and upper bounds on quantities
+ forall(i in BREAKS) do
+  B(i-1)*b(i) <= x(i);  x(i) <= B(i)*b(i)
+ end-do
+
+! The quantity bought lies in exactly one interval
+ sum(i in BREAKS) b(i) = 1
+
+! Solve the problem
+ minimize(TotalCost)
+
+ forall(i in BREAKS) sol_x(i) := getsol(x(i))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_x
+ end-initializations
+end-model

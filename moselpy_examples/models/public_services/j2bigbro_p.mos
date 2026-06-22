@@ -1,0 +1,71 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file j2bigbro_p.mos
+   ```````````````````
+   CCTV surveillance
+
+   A town council has determined candidate street intersections
+   where cameras can be installed. Where should cameras be
+   located to monitor all streets with the minimum number of
+   cameras?
+
+   Modeled as a minimum vertex cover: nodes are intersections,
+   edges are streets. The adjacency matrix STREET is stored as
+   a dynamic array; the reverse direction is filled in by code.
+   Each street must be covered by at least one camera at either
+   endpoint.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "J-2 CCTV surveillance"
+ uses "mmxprs"
+
+ parameters
+  NNODES     = 49                            ! Number of intersections
+  DATASOURCE = "../../data/public_services/j2bigbro_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  NODES = 1..NNODES                          ! Set of street intersections
+
+  STREET: dynamic array(NODES,NODES) of integer ! 1 if street connects two nodes
+
+  place: array(NODES) of mpvar               ! 1 if camera at node, 0 otherwise
+ end-declarations
+
+ initializations from DATASOURCE
+  STREET
+ end-initializations
+
+ forall(n,m in NODES | exists(STREET(n,m)) and n<m) STREET(m,n):= STREET(n,m)
+
+! Objective: number of cameras to install
+ Total:= sum(n in NODES) place(n)
+
+! Every street covered by at least one camera
+ forall(n,m in NODES | exists(STREET(n,m))) place(n)+place(m) >= 1
+
+ forall(n in NODES) place(n) is_binary
+
+! Solve the problem
+ minimize(Total)
+
+ declarations
+  sol_place: array(NODES) of real            ! Camera placement solution
+ end-declarations
+
+ forall(n in NODES) sol_place(n) := getsol(place(n))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_place
+ end-initializations
+
+end-model

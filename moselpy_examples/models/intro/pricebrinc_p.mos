@@ -1,0 +1,82 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file pricebrinc_p.mos
+   ```````````````````
+   Incremental pricebreaks formulated with SOS2   
+  
+   This model represents the situation where we buy a certain
+   number of items and we get discounts incrementally. The 
+   unit cost for items between 0 and B1 is C1, whereas items
+   between B1 and B2 cost C2 each, and items between B2 and
+   B3 cost C3 each.
+   
+   This implementation uses Special Ordered Sets of type 2 
+   (SOS2). At the points 0, B1, B2 and B3, we introduce continuous 
+   decision variables 'w(i)' (i = 0, 1, 2, 3). We also define cost 
+   break points 'CBP(i)' that correspond to the total cost of buying 
+   quantities 0, B1, B2 and B3. Then, 'w(i)' defines a SOS2 with 
+   reference row coefficients given by the coefficients in the 
+   definition of x. In this example, we use 'makesos2' to define 
+   the SOS2.
+
+   - for use with MoselPy -
+
+   (c) 2008 Fair Isaac Corporation
+       author: S. Heipcke, Sep. 2006, rev. 2026
+*******************************************************!)
+
+model "Incremental pricebreaks (SOS2)"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/intro/pricebrinc_p.dat"
+  OUTFILE    = ""
+  NB         = 3                      ! Number of price bands
+ end-parameters
+
+ declarations
+  BREAKS = 0..NB
+  DEM: real                             ! Demand
+  COST: array(1..NB) of real            ! Cost per unit within price bands
+  w: array(BREAKS) of mpvar             ! Weight variables
+  x: mpvar                              ! Total quantity bought
+  B,CBP: array(BREAKS) of real          ! Break points, cost break points
+  public sol_w: array(BREAKS) of real
+ end-declarations
+
+ initializations from DATASOURCE
+  DEM COST B
+ end-initializations
+ 
+ CBP(0):= 0
+ forall(i in 1..NB) CBP(i):= CBP(i-1) + COST(i) * (B(i)-B(i-1))
+
+! Objective: total price
+ TotalCost:= sum(i in BREAKS) CBP(i)*w(i)  
+
+! Meet the demand
+ x = DEM 
+
+! Definition of x
+ Defx:= x = sum(i in BREAKS) B(i)*w(i)
+
+! Weights sum up to 1
+ sum(i in BREAKS) w(i) = 1
+
+! Definition of SOS2 
+! (we cannot use 'is_sos2' since there is a 0-valued coefficient)
+ makesos2(union(i in BREAKS) {w(i)}, Defx)
+
+! Solve the problem
+ minimize(TotalCost)
+
+ forall(i in BREAKS) sol_w(i) := getsol(w(i))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  evaluation of getsol(x) as 'sol_x'
+  sol_w
+ end-initializations
+end-model

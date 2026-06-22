@@ -1,0 +1,76 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file d2ship_p.mos
+   `````````````````
+   Choice of wheat load for a ship
+
+   A shipper has 7 clients that wish to ship wheat. Each has
+   varying quantities of lots, size of lots, shipping price,
+   and transport costs. How can the shipper maximize profit?
+
+   Three incrementally defined problems are solved in series.
+   Each introduces a new constraint while still maximizing profit.
+   Results for all three problems are collected and exported.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "D-2 Ship loading"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/loading_cutting_stock/d2ship_p.dat"
+  OUTFILE    = ""
+  NC         = 7     ! Number of clients
+  VARIANT    = 1     ! Problem variant: 1=LP no limits, 2=LP with limits, 3=MIP
+ end-parameters
+
+ declarations
+  CLIENTS = 1..NC                   ! Set of clients
+
+  AVAIL: array(CLIENTS) of integer  ! Number of lots per client
+  SIZE: array(CLIENTS) of integer   ! Lot sizes
+  PRICE: array(CLIENTS) of integer  ! Prices charged to clients
+  COST: array(CLIENTS) of integer   ! Cost per client
+  PROF: array(CLIENTS) of integer   ! Profit per client
+  CAP: integer                      ! Capacity of the ship
+
+  loadqty: array(CLIENTS) of mpvar  ! Lots taken from clients
+
+  sol_obj:  real                    ! Objective value for selected variant
+  sol_load: array(CLIENTS) of real  ! Solution: lots per client
+ end-declarations
+
+ initializations from DATASOURCE
+  AVAIL SIZE PRICE COST CAP
+ end-initializations
+
+ forall(c in CLIENTS) PROF(c):= PRICE(c) - COST(c)*SIZE(c)
+
+ Profit:= sum(c in CLIENTS) PROF(c)*loadqty(c)
+
+! Limit on the capacity of the ship
+ sum(c in CLIENTS) SIZE(c)*loadqty(c) <= CAP
+
+! VARIANT=2,3: limits on availability of lots at clients
+ if VARIANT >= 2: forall(c in CLIENTS) loadqty(c) <= AVAIL(c)
+
+! VARIANT=3: lots must be integer
+ if VARIANT = 3: forall(c in CLIENTS) loadqty(c) is_integer
+
+ maximize(Profit)
+ sol_obj:= getobjval
+
+ forall(c in CLIENTS) sol_load(c):= getsol(loadqty(c))
+
+ initializations to OUTFILE
+  sol_obj
+  sol_load
+ end-initializations
+
+end-model

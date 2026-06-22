@@ -1,0 +1,79 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file a2food_p.mos
+   ```````````````
+   Food production for farm animals
+
+   - for use with MoselPy -
+
+   (c) 2008 Fair Isaac Corporation
+       author: S. Heipcke, Feb. 2002, rev. 2026
+*******************************************************!)
+
+model "A-2 Animal Food Production"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/mining_process/a2food_p.dat"
+  OUTFILE    = ""
+  NF         = 2                       ! Number of food types
+  NC         = 3                       ! Number of nutritional components
+ end-parameters
+
+ declarations
+  FOOD = 1..NF                         ! Food types
+  COMP = 1..NC                         ! Nutritional components
+  RAW: set of string                   ! Raw materials
+
+  P: array(RAW,COMP) of real           ! Composition of raw materials (in percent)
+  REQ: array(COMP) of real             ! Nutritional requirements
+  AVAIL: array(RAW) of real            ! Raw material availabilities
+  COST: array(RAW) of real             ! Raw material prices
+  PCOST: array(set of string) of real  ! Cost of processing operations
+  DEM: array(FOOD) of real             ! Demands for food types
+
+  use: array(RAW,FOOD) of mpvar        ! Quantity of raw material used for a food type
+  produce: array(FOOD) of mpvar        ! Quantity of food produced
+
+  public sol_produce: array(FOOD) of real  ! public: accessible via find_identifier()
+  public sol_use: array(RAW,FOOD) of real   ! public: accessible via find_identifier()
+ end-declarations
+
+ initializations from DATASOURCE
+  P REQ PCOST DEM AVAIL COST
+ end-initializations
+
+! Objective: total production cost
+ Cost:= sum(r in RAW,f in FOOD) COST(r)*use(r,f) +
+        sum(r in RAW,f in FOOD|r<>"molasses") PCOST("grinding")*use(r,f) +
+        sum(r in RAW,f in FOOD) PCOST("blending")*use(r,f) +
+        sum(r in RAW) PCOST("granulating")*use(r,1) +
+        sum(r in RAW) PCOST("sieving")*use(r,2)
+
+! Quantity of food produced corresponds to raw material used
+ forall(f in FOOD) sum(r in RAW) use(r,f) = produce(f)
+
+! Fulfill nutritional requirements
+ forall(f in FOOD,c in 1..2)
+  sum(r in RAW) P(r,c)*use(r,f) >= REQ(c)*produce(f)
+ forall(f in FOOD) sum(r in RAW) P(r,3)*use(r,f) <= REQ(3)*produce(f)
+
+! Use raw materials within their limit of availability
+ forall(r in RAW) sum(f in FOOD) use(r,f) <= AVAIL(r)
+
+! Satisfy demands
+ forall(f in FOOD) produce(f) >= DEM(f)
+
+ minimize(Cost)
+
+ forall(f in FOOD) sol_produce(f) := getsol(produce(f))
+ forall(r in RAW, f in FOOD) sol_use(r,f) := getsol(use(r,f))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_produce sol_use
+ end-initializations
+
+end-model

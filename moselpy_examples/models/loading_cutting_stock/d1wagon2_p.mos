@@ -1,0 +1,98 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file d1wagon2_p.mos
+   ```````````````````
+   Load balancing of train wagons
+   (second version, using heuristic solution as
+    start solution for MIP via 'addmipsol')
+
+   Sixteen boxes must be loaded on three railway wagons.
+   Each wagon has a weight limit of 100 quintals. Which wagon
+   should each box be assigned so that the heaviest wagon load
+   is minimized.
+
+   The heuristic wagon assignment is computed in Python (LPT
+   algorithm) and passed via input_data as HeurSol. Mosel feeds
+   it to the Xpress MIP solver as a warm start via addmipsol.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Sep. 2007, rev. 2026
+*******************************************************!)
+
+model "D-1 Wagon load balancing (2)"
+ uses "mmxprs", "mmsystem"
+
+ parameters
+  DATASOURCE = "../../data/loading_cutting_stock/d1wagon_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ forward procedure solnotify(id:string, status:integer)
+
+ declarations
+  BOXES = 1..16                        ! Set of boxes
+  WAGONS = 1..3                        ! Set of wagons
+
+  WEIGHT: array(BOXES) of integer      ! Box weights
+  WMAX: integer                        ! Weight limit per wagon
+  HeurSol: array(BOXES) of integer     ! Heuristic wagon assignment (from Python)
+
+  ifload: array(BOXES,WAGONS) of mpvar ! 1 if box loaded on wagon, 0 otherwise
+  maxweight: mpvar                     ! Weight of the heaviest wagon load
+  MaxWeight: linctr                    ! Objective function
+
+  AllSol: array(mpvar) of real         ! Start solution for MIP
+
+  sol_ifload: array(BOXES,WAGONS) of real ! Solution: box-to-wagon assignment
+ end-declarations
+
+ initializations from DATASOURCE
+  WEIGHT WMAX HeurSol
+ end-initializations
+
+! Every box into one wagon
+ forall(b in BOXES) sum(w in WAGONS) ifload(b,w) = 1
+
+! Limit the weight loaded into every wagon
+ forall(w in WAGONS) sum(b in BOXES) WEIGHT(b)*ifload(b,w) <= maxweight
+
+! Lower bound on maximum weight
+ maxweight >= ceil((sum(b in BOXES) WEIGHT(b))/3)
+
+ forall(b in BOXES,w in WAGONS) ifload(b,w) is_binary
+
+! Build start solution from heuristic assignment passed from Python
+ forall(b in BOXES) AllSol(ifload(b,HeurSol(b))):= 1
+
+! Minimize the heaviest load
+ MaxWeight:= maxweight                  ! Objective must be a constraint
+                                        ! otherwise 'minimize' reloads problem
+ loadprob(MaxWeight)                    ! Load problem into the Optimizer
+ addmipsol("HeurSol", AllSol)           ! Load the heuristic solution as warm start
+
+ setcallback(XPRS_CB_SOLNOTIFY,->solnotify)
+
+! Re-inforce use of user solution in local search heuristics
+ setparam("XPRS_USERSOLHEURISTIC",3)
+
+ minimize(MaxWeight)                    ! Start optimization
+
+! Collect solution
+ forall(b in BOXES, w in WAGONS) sol_ifload(b,w):= getsol(ifload(b,w))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_ifload
+ end-initializations
+
+!-----------------------------------------------------------------
+
+ procedure solnotify(id:string, status:integer)
+  writeln("Optimiser loaded solution '", id, "' status=", status)
+ end-procedure
+
+end-model

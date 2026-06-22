@@ -1,0 +1,74 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file pricebrinc3_p.mos
+   ````````````````````
+   Incremental pricebreaks formulated with 
+   piecewise linear expressions
+
+   This model represents the situation where we buy a certain
+   number of items and we get discounts incrementally. The
+   unit cost for items between 0 and B1 is C1, whereas items
+   between B1 and B2 cost C2 each, and items between B2 and
+   B3 cost C3 each.
+
+   We model the incremental price breaks via 'pwlin' expressions. 
+   Three different versions can be used for representing 
+   this particular case of a continuous cost function.
+   This general constraint is handled directly by the MIP solver
+   although the constraint formulation requires the nonlinear
+   module 'mmxnlp'.
+
+   - for use with MoselPy -
+
+   (c) 2021 Fair Isaac Corporation
+       author: S. Heipcke, July 2021, rev. 2026
+*******************************************************!)
+
+model "Incremental pricebreaks (pwlin)"
+ uses "mmxnlp"
+ 
+
+ parameters
+  OUTFILE = ""
+  NB         = 3                      ! Number of price bands
+ end-parameters
+
+ declarations
+  BREAKS = 0..NB
+  COST: array(1..NB) of real            ! Cost per unit within price bands
+  x: mpvar                              ! Total quantity bought
+  B,CBP: array(BREAKS) of real          ! Break points, cost break points
+ end-declarations
+ 
+ DEM:= 150                              ! Demand
+ B::  [0, 50, 120, 200]
+ COST:: [0.8, 0.5, 0.3]
+ 
+ CBP(0):= 0
+ forall(i in 1..NB) CBP(i):= CBP(i-1) + COST(i) * (B(i)-B(i-1))
+
+! Objective: total price (uncomment one of the three following options)
+
+! 1- Specification as a list of slopes with associated intervals:
+! (only points of slope changes are specified, the start value is 0):
+!TotalCost:= pwlin(x, union(i in 1..2) [B(i)], union(i in 1..3) [COST(i)])
+
+! 2- Specification as a list of piecewise linear segments (pws) with associated intervals:
+TotalCost:= pwlin(union(i in 1..3) [pws(B(i-1), CBP(i-1)+COST(i)*(x-B(i-1)))])
+
+! 3- Specification as a list of points:
+!TotalCost:= pwlin(x, union(i in 0..3) [B(i), CBP(i)])
+
+! Meet the demand
+ x = DEM 
+
+! Solve the problem
+ minimize(TotalCost)
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  evaluation of getsol(x) as 'sol_x'
+ end-initializations
+end-model

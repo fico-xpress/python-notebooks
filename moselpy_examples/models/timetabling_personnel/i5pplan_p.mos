@@ -1,0 +1,106 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file i5pplan_p.mos
+   ``````````````````
+   Production planning with personnel assignment
+
+   A company must plan the production for a set of products
+   on different production lines. Unitary processing times,
+   production line capacities, and profit per product are
+   provided. Working hours can be transferred between some
+   production lines (up to a given maximum). What quantity
+   of each product should be produced to maximize total profit?
+
+   The hours transferred between lines are modeled as a dynamic
+   array: transfer variables are created only where transfers are
+   permitted. Named linctr constraints (Load) are used so capacity
+   constraints can be redefined in-place for the transfer variant.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "I-5 Production planning with personnel"
+ uses "mmxprs"
+
+ parameters
+  NPRODS     = 4                             ! Number of products
+  NLINES     = 5                             ! Number of production lines
+  DATASOURCE = "../../data/timetabling_personnel/i5pplan_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  PRODS = 1..NPRODS                          ! Set of products
+  LINES = 1..NLINES                          ! Set of production lines
+
+  PROFIT: array(PRODS) of integer            ! Profit per product
+  DUR:    array(PRODS,LINES) of real         ! Processing duration per product/line
+  CAP:    array(LINES) of integer            ! Working hours available per line
+  Load:   array(LINES) of linctr             ! Capacity constraints (rebuildable)
+
+  produce:  array(PRODS) of mpvar            ! Quantity produced
+  hours:    array(LINES) of mpvar            ! Effective hours per line (variant 2)
+
+  TRANSF:   dynamic array(LINES,LINES) of integer  ! 1 if transfer is allowed
+  TMAX:     array(LINES) of integer                ! Maximum hours to transfer per line
+  transfer: dynamic array(LINES,LINES) of mpvar    ! Hours transferred between lines
+
+  sol_produce1: array(PRODS) of real         ! Production quantities (no transfer)
+  sol_produce2: array(PRODS) of real         ! Production quantities (with transfer)
+  sol_transfer: dynamic array(LINES,LINES) of real ! Transfer hours
+  obj_notrans:  real                         ! Objective without transfers
+ end-declarations
+
+ initializations from DATASOURCE
+  PROFIT DUR CAP
+ end-initializations
+
+! Objective: total profit
+ TotProfit:= sum(p in PRODS) PROFIT(p)*produce(p)
+
+! Capacity constraints on lines
+ forall(l in LINES) Load(l):= sum(p in PRODS) DUR(p,l)*produce(p) <= CAP(l)
+
+! **** Variant 1: solve without transfers ****
+ maximize(TotProfit)
+
+ obj_notrans := getobjval
+ forall(p in PRODS) sol_produce1(p) := getsol(produce(p))
+
+! **** Variant 2: allow transfer of working hours between lines ****
+
+ initializations from DATASOURCE
+  TRANSF TMAX
+ end-initializations
+
+ forall(k,l in LINES | exists(TRANSF(k,l))) create(transfer(k,l))
+
+! Redefine capacity constraints to use effective hours
+ forall(l in LINES) Load(l):= sum(p in PRODS) DUR(p,l)*produce(p) <= hours(l)
+
+! Balance effective hours per line
+ forall(l in LINES)
+  hours(l) = CAP(l) + sum(k in LINES) transfer(k,l) -
+                      sum(k in LINES) transfer(l,k)
+
+! Limit on outgoing transfers per line
+ forall(l in LINES) sum(k in LINES) transfer(l,k) <= TMAX(l)
+
+! Solve with transfers
+ maximize(TotProfit)
+
+ forall(p in PRODS) sol_produce2(p) := getsol(produce(p))
+ forall(k,l in LINES | exists(transfer(k,l))) sol_transfer(k,l) := getsol(transfer(k,l))
+
+ initializations to OUTFILE
+  evaluation of obj_notrans as 'obj_notrans'
+  evaluation of getobjval   as 'obj_trans'
+  sol_produce1 sol_produce2 sol_transfer
+ end-initializations
+
+end-model

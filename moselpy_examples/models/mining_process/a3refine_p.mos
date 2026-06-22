@@ -1,0 +1,100 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file a3refine_p.mos
+   `````````````````
+   Refinery planning
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Feb. 2002, rev. 2026
+*******************************************************!)
+
+model "A-3 Refinery planning"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/mining_process/a3refine_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  CRUDES: set of string                   ! Set of crudes
+  ALLPRODS: set of string                 ! Intermediate and final products
+  FINAL: set of string                    ! Final products
+  IDIST: set of string                    ! Products obtained by distillation
+  IREF: set of string                     ! Products obtained by reforming
+  ICRACK: set of string                   ! Products obtained by cracking
+  IPETROL: set of string                  ! Interm. products for petrol
+  IDIESEL: set of string                  ! Interm. products for diesel
+  IHO: set of string                      ! Interm. products for heating oil
+  CAP: array(set of string) of real       ! Production capacities
+
+  DEM: array(FINAL) of real               ! Min. production
+  COST: array(set of string) of real      ! Production costs
+  AVAIL: array(CRUDES) of real            ! Crude availability
+  OCT, VAP, VOL: array(IPETROL) of real   ! Octane, vapor pressure, and volatility values
+  SULF: array(IDIESEL) of real            ! Sulfur contents
+  DIST: array(CRUDES,IDIST) of real       ! Composition of crudes (in %)
+  REF: array(IREF) of real                ! Results of reforming (in %)
+  CRACK: array(ICRACK) of real            ! Results of cracking (in %)
+ end-declarations
+
+ initializations from DATASOURCE
+  DEM COST OCT VAP VOL SULF AVAIL DIST REF CRACK IHO CAP
+ end-initializations
+
+ ALLPRODS:= FINAL+IDIST+IREF+ICRACK+IPETROL+IHO+IDIESEL
+
+ declarations
+  use: array(CRUDES) of mpvar             ! Quantities of crudes used
+  produce: array(ALLPRODS) of mpvar       ! Quantities produced
+
+  sol_crude: array(CRUDES) of real
+  sol_final: array(FINAL) of real
+ end-declarations
+
+ Cost:= sum(c in CRUDES) COST(c)*use(c) + sum(p in IDIST) COST(p)*produce(p)
+
+ forall(p in IDIST) produce(p) <= sum(c in CRUDES) DIST(c,p)*use(c)
+
+ forall(p in IREF) produce(p) <= REF(p)*produce("naphtha")
+ forall(p in ICRACK) produce(p) <= CRACK(p)*produce("residue")
+ produce("crknaphtha") = produce("petcrknaphtha") +
+                         produce("hocrknaphtha") + produce("dslcrknaphtha")
+ produce("crkgasoil") = produce("hocrkgasoil") + produce("dslcrkgasoil")
+ produce("gasoil") = produce("hogasoil") + produce("dslgasoil")
+
+ produce("butane") = produce("distbutane") + produce("refbutane") -
+                     produce("petbutane")
+ produce("petrol") = sum(p in IPETROL) produce(p)
+ produce("diesel") = sum(p in IDIESEL) produce(p)
+ produce("heating") = sum(p in IHO) produce(p)
+
+ sum(p in IPETROL) OCT(p)*produce(p) >= 94*produce("petrol")
+ sum(p in IPETROL) VAP(p)*produce(p) <= 12.7*produce("petrol")
+ sum(p in IPETROL) VOL(p)*produce(p) >= 17*produce("petrol")
+
+ sum(p in IDIESEL) SULF(p)*produce(p) <= 0.05*produce("diesel")
+
+ forall(c in CRUDES) use(c) <= AVAIL(c)
+
+ produce("naphtha") <= CAP("naphtha")
+ produce("gasoil") <= CAP("gasoil")
+ produce("residue") <= CAP("residue")
+
+ forall(p in FINAL) produce(p) >= DEM(p)
+
+ minimize(Cost)
+
+ forall(c in CRUDES) sol_crude(c) := getsol(use(c))
+ forall(p in FINAL) sol_final(p) := getsol(produce(p))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_crude sol_final
+ end-initializations
+
+end-model

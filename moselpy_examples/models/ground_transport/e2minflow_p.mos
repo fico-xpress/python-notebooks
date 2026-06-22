@@ -1,0 +1,85 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file e2minflow_p.mos
+   ````````````````````
+   Minimum cost flow in a transport network
+
+   A transport network has multiple depots, distribution
+   centres, and a single source and sink. Flow must satisfy
+   a minimum total throughput at minimum cost. Arcs have
+   minimum and maximum capacity constraints.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "E-2 Minimum cost flow"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/ground_transport/e2minflow_p.dat"
+  OUTFILE    = ""
+  MINQ       = 180    ! Minimum total flow through network
+ end-parameters
+
+ declarations
+  ARCS: range                                    ! Set of arcs (auto-ranged from A)
+
+  A:       array(ARCS, 1..2) of string           ! Arc definitions: from/to node names
+  MINCAP:  array(ARCS) of integer                ! Minimum arc capacities
+  MAXCAP:  array(ARCS) of integer                ! Maximum arc capacities
+  COST:    array(ARCS) of integer                ! Cost per unit flow on arc
+
+  flow:    dynamic array(ARCS) of mpvar          ! Flow on each arc
+
+  sol_flow: dynamic array(ARCS) of real          ! Solution: flow values
+ end-declarations
+
+ initializations from DATASOURCE
+  A MINCAP MAXCAP COST
+ end-initializations
+
+! Build set of node names from arc endpoints
+ declarations
+  NODES: set of string                           ! Set of node names
+ end-declarations
+ NODES:=union(a in ARCS) {A(a,1),A(a,2)}
+
+! Create flow variables for all arcs
+ forall(a in ARCS) do
+  create(flow(a))
+  flow(a) >= MINCAP(a)
+  if MAXCAP(a) > 0 then
+   flow(a) <= MAXCAP(a)
+  end-if
+ end-do
+
+! Objective: total cost
+ TotalCost:= sum(a in ARCS) COST(a)*flow(a)
+
+! Flow conservation at each intermediate node
+ forall(n in NODES | n <> "SOURCE" and n <> "SINK") do
+  sum(a in ARCS | A(a,2)=n) flow(a) = sum(a in ARCS | A(a,1)=n) flow(a)
+ end-do
+
+! Minimum total throughput
+ sum(a in ARCS | A(a,1)="SOURCE") flow(a) >= MINQ
+
+! Solve the problem
+ minimize(TotalCost)
+
+! Collect solution
+ forall(a in ARCS) do
+  sol_flow(a) := getsol(flow(a))
+ end-do
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_flow
+ end-initializations
+
+end-model

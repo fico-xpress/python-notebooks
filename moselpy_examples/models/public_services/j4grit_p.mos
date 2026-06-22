@@ -1,0 +1,68 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file j4grit_p.mos
+   `````````````````
+   Gritting roads in a village
+
+   A directed graph of street intersections (nodes) and
+   streets to be gritted (arcs) is provided. Street lengths
+   are arc attributes. Find a tour of minimum total length
+   that traverses every street at least once (Chinese postman
+   problem).
+
+   Decision variables represent the frequency of use of each
+   arc. After solving, the arc usage frequencies are returned
+   to Python, which runs the Eulerian circuit extraction using
+   Hierholzer's algorithm.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "J-4 Gritting circuit"
+ uses "mmxprs"
+
+ parameters
+  NISEC      = 12                            ! Number of street intersections
+  DATASOURCE = "../../data/public_services/j4grit_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  ISEC = 1..NISEC                            ! Set of street intersections
+
+  LEN:     dynamic array(ISEC,ISEC) of integer  ! Length of streets
+  use:     dynamic array(ISEC,ISEC) of mpvar    ! Frequency of use of streets
+  sol_use: dynamic array(ISEC,ISEC) of real     ! Arc usage frequencies
+ end-declarations
+
+ initializations from DATASOURCE
+  LEN
+ end-initializations
+
+ forall(i,j in ISEC | exists(LEN(i,j))) create(use(i,j))
+
+! Objective: total gritting length
+ Length:= sum(i,j in ISEC | exists(LEN(i,j))) LEN(i,j)*use(i,j)
+
+! Balance traffic flow through intersections
+ forall(i in ISEC) sum(j in ISEC) use(i,j) = sum(j in ISEC) use(j,i)
+
+! Grit every street at least once
+ forall(i,j in ISEC | exists(LEN(i,j))) use(i,j) >= 1
+
+! Solve the problem
+ minimize(Length)
+
+ forall(i,j in ISEC | exists(LEN(i,j))) sol_use(i,j) := getsol(use(i,j))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_use LEN
+ end-initializations
+
+end-model

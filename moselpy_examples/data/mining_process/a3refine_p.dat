@@ -1,0 +1,26 @@
+! Data file for 'a3refine_p.mos'
+
+DEM : [(butane) 20000 (petrol) 40000 (diesel) 30000 (heating) 42000]
+
+OCT: [(petbutane) 120 (reformate) 100 (petcrknaphtha) 74]
+VAP: [(petbutane)  60 (reformate) 2.6 (petcrknaphtha) 4.1]
+VOL: [(petbutane) 105 (reformate) 3   (petcrknaphtha) 12]
+
+SULF: [(dslgasoil) 0.03 (dslcrknaphtha) 0.12 (dslcrkgasoil) 0.76]
+
+AVAIL: [(crude1) 250000 (crude2) 500000]
+
+REF: [(refbutane) 0.15 (reformate) 0.85]
+CRACK: [(crknaphtha) 0.40 (crkgasoil) 0.35]
+
+DIST: [(crude1 distbutane) 0.03 (crude1 naphtha) 0.15 (crude1 gasoil) 0.40 
+      (crude1 residue) 0.15
+      (crude2 distbutane) 0.05 (crude2 naphtha) 0.20 (crude2 gasoil) 0.35 
+      (crude2 residue) 0.10] 
+
+COST: [(crude1) 2.1 (crude2) 2.1 
+       (distbutane) 0 (naphtha) 4.18 (residue) 0.6 (gasoil) 2.04 ]
+
+IHO: ["hogasoil" "hocrknaphtha" "hocrkgasoil"]
+
+CAP: [(naphtha) 30000 (gasoil) 50000 (residue) 40000]

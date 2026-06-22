@@ -1,0 +1,10 @@
+! Data file for j6hospit_p.mos
+
+INDRES: [("non-med pers" 1) 90     87    51    66
+         ("expense" 1)      38.89 109.48 40.43 48.41
+         ("beds" 1)         34     33    20    33]
+
+INDSERV: [("admissions" 1)    30.12 18.54 20.88 10.42
+          ("consultations" 1) 13.54 14.45  8.52 17.74
+          ("doctors" 1)       13     7     8    26
+          ("nurses" 1)        79    55    47    50]

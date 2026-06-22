@@ -1,0 +1,106 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file f2crew_p.mos
+   `````````````````
+   Composing military flight crews
+
+   The Royal Air Force (RAF) had many foreign pilots who
+   spoke different languages and were trained on various
+   plane types. To create pilot/co-pilot pairs, the two
+   pilots must have at least 10/20 rating for the same
+   language and 10/20 on the same plane type. Is it possible
+   to have all 8 pilots fly? Which combination of pilots
+   has the maximum combined plane type rating?
+
+   This program first preprocesses the data to determine
+   the possible crew combinations 'CREW'. Once the crews are
+   known, the set of 'ARCS' can be finalized. The problem is
+   then solved for each objective function.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "F-2 Flight crews"
+ uses "mmxprs"
+
+ parameters
+  NPILOTS    = 8                             ! Number of pilots
+  DATASOURCE = "../../data/air_transport/f2crew_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  PILOTS = 1..NPILOTS                        ! Set of pilots
+  ARCS: range                                ! Set of arcs representing crews
+  RL, RT: set of string                      ! Sets of languages and plane types
+
+  LANG:  array(RL,PILOTS) of integer         ! Language skills of pilots
+  PTYPE: array(RT,PILOTS) of integer         ! Flying skills of pilots
+  CREW:  array(ARCS,1..2) of integer         ! Possible crews
+ end-declarations
+
+ initializations from DATASOURCE
+  LANG PTYPE
+ end-initializations
+
+! Calculate the possible crews
+ ct:=1
+ forall(p,q in PILOTS | p<q and
+                       (or(l in RL) (LANG(l,p)>=10 and LANG(l,q)>=10)) and
+                       (or(t in RT) (PTYPE(t,p)>=10 and PTYPE(t,q)>=10)) ) do
+  CREW(ct,1):=p
+  CREW(ct,2):=q
+  ct+=1
+ end-do
+
+ finalize(ARCS)
+
+ declarations
+  fly:         array(ARCS) of mpvar          ! 1 if crew is flying, 0 otherwise
+  pmin:        mpvar                         ! (not used in first objective)
+  SCORE:       array(ARCS) of integer        ! Maximum scores of crews
+  sol_fly1:    array(ARCS) of real           ! Solution from first objective
+  sol_fly2:    array(ARCS) of real           ! Solution from second objective
+  obj_nflying: real                          ! First objective value
+  obj_score:   real                          ! Second objective value
+ end-declarations
+
+! First objective: number of pilots flying
+ NFlying:= sum(a in ARCS) fly(a)
+
+! Every pilot is member of at most a single crew
+ forall(r in PILOTS) sum(a in ARCS | CREW(a,1)=r or CREW(a,2)=r) fly(a) <= 1
+
+ forall(a in ARCS) fly(a) is_binary
+
+! Solve the problem: maximize number of crews flying
+ maximize(NFlying)
+
+ obj_nflying := getobjval
+ forall(a in ARCS) sol_fly1(a) := getsol(fly(a))
+
+! **** Extend the problem: maximize combined plane type rating ****
+
+ forall(a in ARCS)
+  SCORE(a):= max(t in RT | PTYPE(t,CREW(a,1))>=10 and PTYPE(t,CREW(a,2))>=10)
+              (PTYPE(t,CREW(a,1)) + PTYPE(t,CREW(a,2)))
+
+! Second objective: sum of scores
+ TotalScore:= sum(a in ARCS) SCORE(a)*fly(a)
+
+! Solve the problem: maximize total score
+ maximize(TotalScore)
+
+ obj_score := getobjval
+ forall(a in ARCS) sol_fly2(a) := getsol(fly(a))
+
+ initializations to OUTFILE
+  obj_nflying obj_score sol_fly1 sol_fly2 SCORE CREW
+ end-initializations
+
+end-model

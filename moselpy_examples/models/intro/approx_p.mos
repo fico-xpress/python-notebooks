@@ -1,0 +1,82 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file approx_p.mos
+   ```````````````
+   Function approximation with SOS2
+
+   SOS2s are generally used for modeling piecewise approximations
+   of functions of a single variable. In this example, we aim
+   to represent f as a function of x and we consider four line
+   segments between five points. The five points are (R1, F1), 
+   (R2, F2), (R3, F3), (R4, F4) and (R5, F5) and associated with 
+   each point i is a weight variable y(i). Binary variable b(i) is
+   associated with each of the intervals (R1, R2), (R2, R3), (R3, 
+   R4) and (R4, R5), so 'b(i)' takes value 1 if the value of x 
+   lies between 'R(i)' and 'R(i+1)'.
+
+   The SOS2 property of having at most two non-zero 'y(i)', and
+   if there are two non-zero then they must be adjacent, implies
+   that we are always on the piece-wise linear function.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Sep. 2006, rev. 2026
+*******************************************************!)
+
+model "Approximation"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/intro/approx_p.dat"
+  OUTFILE    = ""
+  NB         = 5                  ! Number of breakpoints
+ end-parameters
+
+ declarations
+  BREAKS = 1..NB
+  R,F: array(BREAKS) of real           ! Coordinates of break points
+  x,f: mpvar                           ! Decision variables
+  y: array(BREAKS) of mpvar            ! Weight variables
+ end-declarations
+
+ initializations from DATASOURCE
+  R F
+ end-initializations
+
+ RefRow:= sum(i in BREAKS) R(i)*y(i)
+ x = RefRow
+ f = sum(i in BREAKS) F(i)*y(i)
+
+! Convexity constraint
+ sum(i in BREAKS) y(i) = 1
+
+! SOS2 definition
+ RefRow is_sos2
+
+! Alternative SOS definition (to be used for 0-valued RefRow coefficients):
+! makesos2(union(i in BREAKS) {y(i)}, RefRow)
+
+(! Alternative formulation using binaries instead of SOS2:
+ declarations
+  b: array(1..NB-1) of mpvar
+ end-declarations
+
+ sum(i in 1..NB-1) b(i) = 1
+ forall(i in 1..NB-1) b(i) is_binary
+ forall(i in BREAKS) y(i) <= if(i>1, b(i-1), 0) + if(i<NB, b(i), 0)
+!)
+
+! Bounds
+ R(1)<=x; x<=R(NB)
+
+! Solve the problem
+ minimize(f)
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'sol_f'
+  evaluation of getsol(x) as 'sol_x'
+ end-initializations
+end-model

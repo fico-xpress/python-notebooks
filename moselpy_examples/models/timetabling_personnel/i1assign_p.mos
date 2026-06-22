@@ -1,0 +1,88 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file i1assign_p.mos
+   ```````````````````
+   Assigning workers to machines
+
+   Given a set of operators and a set of machines, an operator
+   must be assigned to each of the six machines in a workshop.
+   The productivity (pieces per hour) of each operator and each
+   machine is given. What operator should be assigned to each
+   machine to maximize the total productivity if machines are
+   running in parallel? What should the assignment be if machines
+   are working in series?
+
+   For the parallel-machines problem, a simple IP model maximizes
+   total productivity. For the series problem, a new variable pmin
+   models the bottleneck: the minimum productivity across all
+   assignments is maximized.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "I-1 Personnel assignment"
+ uses "mmxprs"
+
+ parameters
+  NPERS      = 6                             ! Number of personnel
+  NMACH      = 6                             ! Number of machines
+  DATASOURCE = "../../data/timetabling_personnel/i1assign_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  PERS = 1..NPERS                            ! Personnel
+  MACH = 1..NMACH                            ! Machines
+
+  OUTP:    array(PERS,MACH) of integer       ! Productivity per person-machine pair
+  assign:  array(PERS,MACH) of mpvar         ! 1 if person assigned to machine,
+                                             ! 0 otherwise
+  pmin:    mpvar                             ! Minimum productivity (serial problem)
+  par_sol: array(PERS,MACH) of real          ! Parallel assignment solution
+  ser_sol: array(PERS,MACH) of real          ! Serial assignment solution
+  par_val: real                              ! Parallel objective value
+ end-declarations
+
+ initializations from DATASOURCE
+  OUTP
+ end-initializations
+
+! Objective: total productivity
+ TotalProd:= sum(p in PERS, m in MACH) OUTP(p,m)*assign(p,m)
+
+! One machine per person
+ forall(p in PERS) sum(m in MACH) assign(p,m) = 1
+
+! One person per machine
+ forall(m in MACH) sum(p in PERS) assign(p,m) = 1
+
+! **** Solve parallel assignment (LP relaxation is integral) ****
+ maximize(TotalProd)
+
+ par_val := getobjval
+ forall(p in PERS, m in MACH) par_sol(p,m) := getsol(assign(p,m))
+
+! **** Extend to serial machines: maximize the bottleneck ****
+
+! Minimum productivity constraint
+ forall(p in PERS) sum(m in MACH) OUTP(p,m)*assign(p,m) >= pmin
+
+ forall(p in PERS, m in MACH) assign(p,m) is_binary
+
+! Solve serial problem
+ maximize(pmin)
+
+ forall(p in PERS, m in MACH) ser_sol(p,m) := getsol(assign(p,m))
+
+ initializations to OUTFILE
+  evaluation of par_val    as 'obj_parallel'
+  evaluation of getobjval  as 'obj_serial'
+  par_sol ser_sol OUTP
+ end-initializations
+
+end-model

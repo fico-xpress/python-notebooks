@@ -1,0 +1,82 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file h3portf_p.mos
+   ``````````````````
+   Composition of an investment portfolio
+
+   A financial consultant aims to determine in which shares
+   to invest given an investment budget and the estimated
+   return on investment. There are minimum and maximum
+   investments for different subsets of shares. How much
+   money should be invested in each share to obtain the
+   highest expected ROI?
+
+   Instead of investing between VMIN and VMAX into every share,
+   the invested amount for each share must be within [VMIN,VMAX]
+   or take the value 0 (semi-continuous variable). The model
+   can optionally enforce this with 'is_semcont'. Limit values
+   are defined as runtime parameters.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "H-3 Portfolio"
+ uses "mmxprs"
+
+ parameters
+  NSHARES    = 6                             ! Number of shares
+  CAPITAL    = 100000                        ! Capital to invest
+  MAXTECH    = 0.3                           ! Maximum investment into tech. values
+  MINEU      = 0.5                           ! Minimum investment into European shares
+  VMIN       = 5000                          ! Minimum amount for a single value
+  VMAX       = 40000                         ! Maximum amount for a single value
+  DATASOURCE = "../../data/economics_finance/h3portf_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  SHARES = 1..NSHARES                        ! Set of shares
+
+  RET:        array(SHARES) of real          ! Estimated return on investment
+  EU:         set of integer                 ! European values among the shares
+  TECHNOLOGY: set of integer                 ! Technology values among shares
+
+  buy: array(SHARES) of mpvar                ! Amount of values taken into portfolio
+ end-declarations
+
+ initializations from DATASOURCE
+  RET EU TECHNOLOGY
+ end-initializations
+
+! Objective: total return
+ Return:= sum(s in SHARES) RET(s)/100*buy(s)
+
+! Requirements concerning portfolio composition
+ sum(s in TECHNOLOGY) buy(s) <= MAXTECH*CAPITAL
+ sum(s in EU)         buy(s) >= MINEU*CAPITAL
+
+! Total capital to invest
+ sum(s in SHARES) buy(s) = CAPITAL
+
+ forall(s in SHARES) setrange(buy(s), VMIN, VMAX)
+
+! Solve the problem
+ maximize(Return)
+
+ declarations
+  sol_buy: array(SHARES) of real             ! Investment amount per share
+ end-declarations
+
+ forall(s in SHARES) sol_buy(s) := getsol(buy(s))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_buy
+ end-initializations
+
+end-model

@@ -1,0 +1,70 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file d5cutsh_p.mos
+   ``````````````````
+   Cutting of sheet metal
+   (2-dimensional cutting patterns)
+
+   A sheet metal shop cuts large pieces of sheet metal into
+   4 smaller sizes. There are 16 possible patterns that a
+   large sheet can be cut into. How can the incoming order
+   be met while using the smallest number of large sheets?
+
+   This mathematical model (formulated as a covering problem)
+   is very compact since the patterns have already been
+   pre-computed.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "D-5 Sheet metal cutting"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/loading_cutting_stock/d5cutsh_p.dat"
+  OUTFILE    = ""
+  NPAT       = 16    ! Number of cutting patterns
+  NS         = 4     ! Number of sheet sizes
+ end-parameters
+
+ declarations
+  PATTERNS = 1..NPAT                     ! Set of cutting patterns
+  SIZES = 1..NS                          ! Set of sheet sizes
+
+  DEM: array(SIZES) of integer           ! Demands for the different sizes
+  CUT: array(SIZES,PATTERNS) of integer  ! Cutting patterns
+
+  use: array(PATTERNS) of mpvar          ! Use of cutting patterns
+
+  sol_use: array(PATTERNS) of real       ! Solution: patterns used
+ end-declarations
+
+ initializations from DATASOURCE
+  DEM CUT
+ end-initializations
+
+! Objective: total number of sheets used
+ Sheets:= sum(p in PATTERNS) use(p)
+
+! Satisfy demands
+ forall(s in SIZES) sum(p in PATTERNS) CUT(s,p)*use(p) >= DEM(s)
+
+ forall(p in PATTERNS) use(p) is_integer
+
+! Solve the problem
+ minimize(Sheets)
+
+! Collect solution
+ forall(p in PATTERNS) sol_use(p):= getsol(use(p))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_use
+ end-initializations
+
+end-model

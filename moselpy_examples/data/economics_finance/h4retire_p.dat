@@ -1,0 +1,11 @@
+! Data file for h4retire_p.mos
+
+DEM: [1000 600 640 480 760 1020 950]
+
+VALUE: [("SNCF") 1.0 ("Fujitsu") 0.8 ("Treasury") 0.5]
+
+RATE: [("SNCF") 7.0 ("Fujitsu") 7.0 ("Treasury") 6.5]
+
+DUR: [("SNCF") 5 ("Fujitsu") 4 ("Treasury") 6]
+
+INTEREST: 3.2

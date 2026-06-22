@@ -1,0 +1,5 @@
+! Data file for b2flowshop_p.mos
+
+DUR: [3 6 3 5 5 7
+      5 4 2 4 4 5
+      5 2 4 6 3 6]

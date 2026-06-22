@@ -1,0 +1,35 @@
+! Data file for g3routing_p.mos
+
+CAP: [("Nantes-Paris") 300 ("Nantes-Nice") 120 ("Paris-Nice") 300
+      ("Paris-Valenciennes") 200 ("Troyes-Nice") 80 ("Troyes-Valenciennes") 70]
+
+DEM: [("Nantes-Nice") 100 ("Nantes-Troyes") 80 ("Nantes-Valenciennes") 75
+      ("Nice-Valenciennes") 100 ("Paris-Troyes") 70]
+
+ROUTE: [
+ (1 1) "Nantes-Nice"
+ (2 1) "Nantes-Paris" "Paris-Nice"
+ (3 1) "Nantes-Paris" "Paris-Valenciennes" "Valenciennes-Troyes" "Troyes-Nice"
+ (4 1) "Nantes-Paris" "Paris-Valenciennes" "Valenciennes-Troyes"
+ (5 1) "Nantes-Paris" "Paris-Nice" "Troyes-Nice"
+ (6 1) "Nantes-Nice" "Troyes-Nice"
+ (7 1) "Nantes-Nice" "Paris-Nice" "Paris-Valenciennes" "Valenciennes-Troyes"
+ (8 1) "Nantes-Paris" "Paris-Valenciennes"
+ (9 1) "Nantes-Nice" "Paris-Nice" "Paris-Valenciennes"
+(10 1) "Nantes-Paris" "Paris-Nice" "Troyes-Nice" "Valenciennes-Troyes"
+(11 1) "Nantes-Nice" "Troyes-Nice" "Valenciennes-Troyes"
+(12 1) "Nantes-Nice" "Nantes-Paris" "Paris-Valenciennes"
+(13 1) "Paris-Nice" "Paris-Valenciennes"
+(14 1) "Troyes-Nice" "Valenciennes-Troyes"
+(15 1) "Paris-Valenciennes" "Valenciennes-Troyes"
+(16 1) "Nantes-Paris" "Nantes-Nice" "Troyes-Nice"
+(17 1) "Paris-Nice" "Troyes-Nice"]
+
+CINDEX: [(1) "Nantes-Nice" (2) "Nantes-Nice" (3) "Nantes-Nice"
+         (4) "Nantes-Troyes" (5) "Nantes-Troyes" (6) "Nantes-Troyes"
+         (7) "Nantes-Troyes"
+         (8) "Nantes-Valenciennes" (9) "Nantes-Valenciennes"
+         (10) "Nantes-Valenciennes" (11) "Nantes-Valenciennes"
+         (12) "Nice-Valenciennes" (13) "Nice-Valenciennes"
+         (14) "Nice-Valenciennes"
+         (15) "Paris-Troyes" (16) "Paris-Troyes" (17) "Paris-Troyes"]

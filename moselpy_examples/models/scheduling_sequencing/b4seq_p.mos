@@ -1,0 +1,100 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file b4seq_p.mos
+   ````````````````
+   Sequencing jobs on a bottleneck machine
+
+   This problem provides a simple model for scheduling tasks
+   on a single machine (a critical machine or bottleneck).
+   Three objectives are available: minimizing the total
+   schedule duration 'makespan' (OBJ=1), the average completion
+   time (OBJ=2), or the total lateness (OBJ=3).
+
+   The OBJ parameter selects which objective is solved, enabling
+   iterative solving from Python (load once, run three times).
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "B-4 Sequencing"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/scheduling_sequencing/b4seq_p.dat"
+  OUTFILE    = ""
+  OBJ        = 1                      ! Objective: 1=makespan, 2=avg completion, 3=total lateness
+  NJ         = 7                      ! Number of jobs
+ end-parameters
+
+ declarations
+  JOBS=1..NJ
+
+  REL: array(JOBS) of integer     ! Release dates of jobs
+  DUR: array(JOBS) of integer     ! Durations of jobs
+  DUE: array(JOBS) of integer     ! Due dates of jobs
+
+  rank: array(JOBS,JOBS) of mpvar ! =1 if job j at position k
+  start: array(JOBS) of mpvar     ! Start time of job at position k
+  comp: array(JOBS) of mpvar      ! Completion time of job at position k
+  late: array(JOBS) of mpvar      ! Lateness of job at position k
+  finish: mpvar                   ! Completion time of the entire schedule
+  sol_rank: array(JOBS,JOBS) of real   ! Solution: rank assignment
+  sol_start: array(JOBS) of real       ! Solution: start times
+  sol_comp: array(JOBS) of real        ! Solution: completion times
+ end-declarations
+
+ initializations from DATASOURCE
+  DUR REL DUE
+ end-initializations
+
+! One job per position
+ forall(k in JOBS) sum(j in JOBS) rank(j,k) = 1
+
+! One position per job
+ forall(j in JOBS) sum(k in JOBS) rank(j,k) = 1
+
+! Sequence of jobs
+ forall(k in 1..NJ-1)
+  start(k+1) >= start(k) + sum(j in JOBS) DUR(j)*rank(j,k)
+
+! Start times
+ forall(k in JOBS) start(k) >= sum(j in JOBS) REL(j)*rank(j,k)
+
+! Completion times
+ forall(k in JOBS) comp(k) = start(k) + sum(j in JOBS) DUR(j)*rank(j,k)
+
+ forall(j,k in JOBS) rank(j,k) is_binary
+
+! Objective function 1: minimize latest completion time (makespan)
+ forall(k in JOBS) finish >= comp(k)
+
+! Lateness constraints (needed for OBJ=3)
+ forall(k in JOBS) late(k) >= comp(k) - sum(j in JOBS) DUE(j)*rank(j,k)
+
+ if OBJ = 1 then
+  minimize(finish)
+ elif OBJ = 2 then
+  minimize(sum(k in JOBS) comp(k))
+ else
+  minimize(sum(k in JOBS) late(k))
+ end-if
+
+! Collect solution arrays
+ forall(j,k in JOBS) sol_rank(j,k)  := getsol(rank(j,k))
+ forall(k in JOBS)   sol_start(k)   := getsol(start(k))
+ forall(k in JOBS)   sol_comp(k)    := getsol(comp(k))
+
+ initializations to OUTFILE
+  evaluation of getobjval   as 'obj_val'
+  evaluation of getsol(finish) as 'makespan'
+  sol_rank
+  sol_start
+  sol_comp
+ end-initializations
+
+end-model

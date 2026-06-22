@@ -1,0 +1,86 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file h5budget_p.mos
+   ```````````````````
+   Planning the family budget
+
+   A mother wants to plan her family's annual budget. A
+   list of monthly expenses is provided as well as the
+   family salary and allowances. Each month, the mother
+   pays at least a given amount for leisure, but she would
+   like to spend more in such activities. How should she
+   balance the budget through the year to maximize the money
+   available for leisure?
+
+   This is a LP model similar to a production planning
+   model where money can be transferred from one time
+   period to the next one. The Mosel operator 'mod' is used
+   to deal with different periodicities of expenses.
+
+   Note: the original model reads EXPENSE and FREQ via an
+   aliased initialization block ([EXPENSE, FREQ] as 'PAYMENT').
+   This adapted version reads them individually by name to
+   allow direct Python data injection via the moselpy: driver.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "H-5 Family budget"
+ uses "mmxprs"
+
+ parameters
+  NMONTHS    = 12                            ! Number of months in planning period
+  DATASOURCE = "../../data/economics_finance/h5budget_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  MONTHS = 1..NMONTHS                        ! Time period
+  ITEMS: set of string                       ! Set of expense categories
+
+  INCOME: integer                            ! Monthly income
+  ALLOW:  integer                            ! Monthly allowance
+  HMIN:   integer                            ! Min. amount required for hobbies
+  EXPENSE: array(ITEMS) of integer           ! Expenses per category
+  FREQ:    array(ITEMS) of integer           ! Frequency (periodicity) of expenses
+
+  hobby:  array(MONTHS) of mpvar             ! Money to spend for leisure/hobbies
+  saving: array(MONTHS) of mpvar             ! Savings
+ end-declarations
+
+ initializations from DATASOURCE
+  INCOME ALLOW HMIN EXPENSE FREQ
+ end-initializations
+
+! Objective: money for hobby
+ Leisure:= sum(m in MONTHS) hobby(m)
+
+! Monthly balances
+ forall(m in MONTHS)
+  sum(i in ITEMS | m mod FREQ(i) = 0) EXPENSE(i) + hobby(m) +
+   saving(m) <= INCOME + ALLOW + if(m>1, saving(m-1), 0)
+
+ forall(m in MONTHS) hobby(m) >= HMIN
+
+! Solve the problem
+ maximize(Leisure)
+
+ declarations
+  sol_hobby:  array(MONTHS) of real          ! Hobby budget per month
+  sol_saving: array(MONTHS) of real          ! Savings per month
+ end-declarations
+
+ forall(m in MONTHS) sol_hobby(m)  := getsol(hobby(m))
+ forall(m in MONTHS) sol_saving(m) := getsol(saving(m))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_hobby sol_saving
+ end-initializations
+
+end-model

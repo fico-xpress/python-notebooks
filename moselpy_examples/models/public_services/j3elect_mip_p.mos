@@ -1,0 +1,71 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file j3elect_mip_p.mos
+   ``````````````````````
+   Grouping quarters to election districts (MIP-only version)
+
+   This version receives pre-computed district data (DISTR and
+   MAJ) from either a .dat file or Python. The district
+   enumeration preprocessing has been moved to Python.
+
+   For use with MoselPy: Python enumerates all valid districts
+   using a recursive algorithm (mirroring the Mosel preprocessing
+   in j3elect_p.mos), then passes DISTR and MAJ to this model
+   via input_data. The model solves only the MIP selection.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Apr. 2002, rev. 2026
+*******************************************************!)
+
+model "J-3 Rigging elections (MIP)"
+ uses "mmxprs"
+
+ parameters
+  NQUARTERS  = 14                            ! Number of quarters
+  NDISTS     = 48                            ! Number of valid districts (computed externally)
+  REQD       = 6                             ! Required number of districts
+  DATASOURCE = "../../data/public_services/j3elect_mip_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  QUARTERS = 1..NQUARTERS                    ! Set of quarters
+  RDIST    = 1..NDISTS                       ! Set of valid districts
+
+  MAJ:   array(RDIST) of integer             ! 1 if district has majority
+  DISTR: array(RDIST,QUARTERS) of integer    ! 1 if quarter in district
+
+  choose:     array(RDIST) of mpvar          ! 1 if district chosen
+  sol_choose: array(RDIST) of real           ! Chosen districts
+ end-declarations
+
+ initializations from DATASOURCE
+  DISTR MAJ
+ end-initializations
+
+! Objective: number of districts with majority votes
+ Votes:= sum(d in RDIST) MAJ(d)*choose(d)
+
+! Every quarter must belong to exactly one chosen district
+ forall(q in QUARTERS) sum(d in RDIST) DISTR(d,q)*choose(d) = 1
+
+! Desired number of districts
+ sum(d in RDIST) choose(d) = REQD
+
+ forall(d in RDIST) choose(d) is_binary
+
+! Solve the problem
+ maximize(Votes)
+
+ forall(d in RDIST) sol_choose(d) := getsol(choose(d))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_choose DISTR MAJ
+ end-initializations
+
+end-model

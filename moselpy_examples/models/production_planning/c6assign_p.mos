@@ -1,0 +1,76 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file c6assign_p.mos
+   ```````````````````
+   Machine assignment for production batches
+
+   10 batches must be produced in the upcoming period. There
+   are 5 machines that can produce any given batch. However,
+   processing time and cost depends on machine assignment.
+   Each machine has a max production capacity. Determine the
+   batch to machine assignment that minimizes the total cost
+   of production.
+
+   This is a generalized assignment problem. Binary variable
+   use(m,p) = 1 if machine m is assigned to batch p.
+   The prob_status can be used to detect infeasibility:
+   tightening machine capacities may make the problem infeasible.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "C-6 Machine assignment"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/production_planning/c6assign_p.dat"
+  OUTFILE    = ""
+  NM         = 5     ! Number of machines
+  NB         = 10    ! Number of production batches
+ end-parameters
+
+ declarations
+  MACH = 1..NM                        ! Set of machines
+  PRODS = 1..NB                       ! Set of production batches
+
+  CAP: array(MACH) of integer         ! Machine capacities
+  DUR: array(MACH,PRODS) of integer   ! Production durations
+  COST: array(MACH,PRODS) of integer  ! Production costs
+
+  use: array(MACH,PRODS) of mpvar     ! 1 if machine assigned to batch, 0 otherwise
+
+  sol_use: array(MACH,PRODS) of real  ! Solution: assignment matrix
+ end-declarations
+
+ initializations from DATASOURCE
+  DUR CAP COST
+ end-initializations
+
+! Objective: total production cost
+ TotalCost:= sum(m in MACH, p in PRODS) COST(m,p)*use(m,p)
+
+! Assign a single machine to every batch
+ forall(p in PRODS) sum(m in MACH) use(m,p) = 1
+
+! Limits on machine capacities
+ forall(m in MACH) sum(p in PRODS) DUR(m,p)*use(m,p) <= CAP(m)
+
+ forall(m in MACH, p in PRODS) use(m,p) is_binary
+
+! Solve the problem
+ minimize(TotalCost)
+
+! Collect solution array
+ forall(m in MACH, p in PRODS) sol_use(m,p) := getsol(use(m,p))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_use
+ end-initializations
+
+end-model

@@ -1,0 +1,83 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file g1rely_p.mos
+   `````````````````
+   Reliability of a telecommunications network
+
+   A military telecommunications network has eleven sites
+   connected by bidirectional lines for data transmission.
+   Due to reliability reasons, node 10 and 11 must remain
+   able to communicate even if any three other sites are
+   destroyed. Is this possible given the current network
+   configuration?
+
+   This problem can be modeled as a maximum flow problem
+   where the graph with N nodes is encoded as an adjacency
+   matrix. Variables 'flow' are only defined for existing arcs
+   using the dynamic array pattern with the 'exists' function.
+   Since there is a bidirectional connection between each node,
+   only one direction is provided in the data and the opposite
+   direction is defined within the code.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "G-1 Network reliability"
+ uses "mmxprs"
+
+ parameters
+  SOURCE     = 10                            ! Source node (must stay connected)
+  SINK       = 11                            ! Sink node (must stay connected)
+  DATASOURCE = "../../data/telecomm/g1rely_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  NODES: range                               ! Set of nodes (auto-sized from data)
+
+  ARC:  dynamic array(NODES,NODES) of integer ! 1 if arc defined, 0 otherwise
+
+  flow: dynamic array(NODES,NODES) of mpvar  ! 1 if flow on arc, 0 otherwise
+ end-declarations
+
+ initializations from DATASOURCE
+  ARC
+ end-initializations
+
+ forall(n,m in NODES | exists(ARC(n,m)) and n<m) ARC(m,n):= ARC(n,m)
+ forall(n,m in NODES | exists(ARC(n,m))) create(flow(n,m))
+
+! Objective: number of vertex-disjoint paths from SOURCE to SINK
+ Paths:= sum(n in NODES) flow(SOURCE,n)
+
+! Flow conservation and capacities (excluding SOURCE and SINK)
+ forall(n in NODES | n<>SOURCE and n<>SINK) do
+  sum(m in NODES) flow(m,n) = sum(m in NODES) flow(n,m)
+  sum(m in NODES) flow(n,m) <= 1
+ end-do
+
+! No return to SOURCE node
+ sum(n in NODES) flow(n,SOURCE) = 0
+
+ forall(n,m in NODES | exists(ARC(n,m))) flow(n,m) is_binary
+
+! Solve the problem
+ maximize(Paths)
+
+ declarations
+  sol_flow: dynamic array(NODES,NODES) of real ! Flow on each arc
+ end-declarations
+
+ forall(n,m in NODES | exists(flow(n,m))) sol_flow(n,m) := getsol(flow(n,m))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_flow
+ end-initializations
+
+end-model

@@ -1,0 +1,76 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file c5fiber_p.mos
+   ``````````````````
+   Planning the production of fiberglass
+
+   The next 6 weeks of fiberglass production needs to be
+   planned. Capacity is limited and varies by week. Production
+   and storage costs also change over time. Determine
+   the plan that minimizes total cost of production and
+   storage while meeting demand for the time period.
+
+   This problem uses a transshipment flow formulation.
+   The DATASOURCE parameter accepts a binary file path
+   (e.g. "bin:...") to demonstrate MoselPy binary I/O:
+   data can be written with mp.write_binary() in Python
+   and read here via 'initializations from DATASOURCE'.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "C-5 Fiberglass"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/production_planning/c5fiber_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  NODES: range                              ! Production and demand nodes
+                                            ! odd numbers: production capacities
+                                            ! even numbers: demands
+
+  ARC: dynamic array(NODES,NODES) of real   ! Cost of flow on arcs
+  WEIGHT: array(NODES) of integer           ! Node weights (capacities/demand)
+
+  flow: dynamic array(NODES,NODES) of mpvar ! Flow on arcs
+
+  sol_flow: dynamic array(NODES,NODES) of real ! Solution: flow on arcs
+ end-declarations
+
+ initializations from DATASOURCE
+  ARC WEIGHT
+ end-initializations
+
+ forall(m,n in NODES | exists(ARC(m,n))) create(flow(m,n))
+
+! Objective: total cost of production and storage
+ Cost:= sum(m,n in NODES | exists(ARC(m,n))) ARC(m,n)*flow(m,n)
+
+! Satisfy demands (flow balance constraints)
+ forall(n in NODES | isodd(n)=FALSE)
+  if(n>2, flow(n-2,n), 0) + flow(n-1,n) =
+   if(n<getlast(NODES), flow(n,n+2), 0) + WEIGHT(n)
+
+! Production capacities
+ forall(n in NODES | isodd(n)) flow(n,n+1) <= WEIGHT(n)
+
+! Solve the problem
+ minimize(Cost)
+
+! Collect solution array (only where arc exists)
+ forall(m,n in NODES | exists(ARC(m,n))) sol_flow(m,n) := getsol(flow(m,n))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_flow
+ end-initializations
+
+end-model

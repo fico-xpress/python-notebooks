@@ -1,0 +1,104 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file h7qportf_p.mos
+   ```````````````````
+   Mean-variance portfolio selection
+
+   An investor considers 4 different securities to invest
+   capital. The mean yield on each invested dollar in each
+   of the securities is known. The investor gets estimates
+   of the variance/covariance matrix of estimated returns
+   on the securities. What fraction of the total capital
+   should be invested in each security?
+
+   Two problem variants are presented. Problem 1: minimize
+   variance subject to a minimum target yield (QP). Problem 2:
+   same but limited to at most MAXASSETS different securities
+   (Mixed Integer QP). The module 'mmnl' handles the quadratic
+   objective in both cases.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Aug. 2002, rev. 2026
+*******************************************************!)
+
+model "H-7 QP Portfolio"
+ uses "mmxprs", "mmnl"
+
+ parameters
+  NSECS      = 4                             ! Number of securities
+  TARGET     = 7.0                           ! Minimum target yield
+  MAXASSETS  = 4                             ! Maximum number of assets in portfolio
+  DATASOURCE = "../../data/economics_finance/h7qportf_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  SECS = 1..NSECS                            ! Set of securities
+
+  RET: array(SECS) of real                   ! Expected yield of securities
+  VAR: array(SECS,SECS) of real              ! Variance/covariance matrix
+
+  frac: array(SECS) of mpvar                 ! Fraction of capital per security
+ end-declarations
+
+ initializations from DATASOURCE
+  RET VAR
+ end-initializations
+
+! **** Problem 1: QP - unlimited number of assets ****
+
+! Objective: mean variance (quadratic)
+ Variance:= sum(s,t in SECS) VAR(s,t)*frac(s)*frac(t)
+
+! Spend all the capital
+ sum(s in SECS) frac(s) = 1
+
+! Target yield
+ sum(s in SECS) RET(s)*frac(s) >= TARGET
+
+! Solve QP
+ minimize(Variance)
+
+ declarations
+  qp_frac: array(SECS) of real               ! QP solution fractions
+  qp_val:  real                              ! QP objective value
+ end-declarations
+
+ qp_val := getobjval
+ forall(s in SECS) qp_frac(s) := getsol(frac(s))
+
+! **** Problem 2: MIQP - limited number of assets ****
+ declarations
+  buy: array(SECS) of mpvar                  ! 1 if asset is in portfolio, 0 otherwise
+ end-declarations
+
+! Limit the total number of assets
+ sum(s in SECS) buy(s) <= MAXASSETS
+
+ forall(s in SECS) do
+  buy(s) is_binary
+  frac(s) <= buy(s)
+ end-do
+
+! Solve MIQP
+ minimize(Variance)
+
+ declarations
+  miqp_frac: array(SECS) of real             ! MIQP solution fractions
+  sol_buy:   array(SECS) of real             ! Binary asset selection
+ end-declarations
+
+ forall(s in SECS) miqp_frac(s) := getsol(frac(s))
+ forall(s in SECS) sol_buy(s)   := getsol(buy(s))
+
+ initializations to OUTFILE
+  evaluation of qp_val    as 'obj_qp'
+  evaluation of getobjval as 'obj_miqp'
+  qp_frac miqp_frac sol_buy
+ end-initializations
+
+end-model

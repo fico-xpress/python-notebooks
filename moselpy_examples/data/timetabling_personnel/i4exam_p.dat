@@ -1,0 +1,23 @@
+! Data file for i4exam_p.mos
+
+INCOMP: [("DA" "NA") 1 ("DA" "PM") 1 ("DA" "GMA") 1 ("DA" "S") 1 ("DA" "DSE") 1
+         ("NA" "DA") 1 ("NA" "PM") 1 ("NA" "GMA") 1 ("NA" "S") 1 ("NA" "DSE") 1
+         ("C++" "SE") 1 ("C++" "PM") 1 ("C++" "J") 1 ("C++" "GMA") 1
+         ("C++" "MP") 1 ("C++" "S") 1 ("C++" "DSE") 1
+         ("SE" "C++") 1 ("SE" "PM") 1 ("SE" "J") 1 ("SE" "GMA") 1 ("SE" "S") 1
+         ("SE" "DSE") 1
+         ("PM" "DA") 1 ("PM" "NA") 1 ("PM" "C++") 1 ("PM" "SE") 1 ("PM" "J") 1
+         ("PM" "GMA") 1 ("PM" "LP") 1 ("PM" "MP") 1 ("PM" "S") 1 ("PM" "DSE") 1
+         ("J" "C++") 1 ("J" "SE") 1 ("J" "PM") 1 ("J" "GMA") 1 ("J" "MP") 1
+         ("J" "S") 1 ("J" "DSE") 1
+         ("GMA" "DA") 1 ("GMA" "NA") 1 ("GMA" "C++") 1 ("GMA" "SE") 1
+         ("GMA" "PM") 1 ("GMA" "J") 1 ("GMA" "LP") 1 ("GMA" "MP") 1
+         ("GMA" "S") 1 ("GMA" "DSE") 1
+         ("LP" "PM") 1 ("LP" "GMA") 1 ("LP" "S") 1 ("LP" "DSE") 1
+         ("MP" "C++") 1 ("MP" "PM") 1 ("MP" "J") 1 ("MP" "GMA") 1 ("MP" "S") 1
+         ("MP" "DSE") 1
+         ("S" "DA") 1 ("S" "NA") 1 ("S" "C++") 1 ("S" "SE") 1 ("S" "PM") 1
+         ("S" "J") 1 ("S" "GMA") 1 ("S" "LP") 1 ("S" "MP") 1 ("S" "DSE") 1
+         ("DSE" "DA") 1 ("DSE" "NA") 1 ("DSE" "C++") 1 ("DSE" "SE") 1
+         ("DSE" "PM") 1 ("DSE" "J") 1 ("DSE" "GMA") 1 ("DSE" "LP") 1
+         ("DSE" "MP") 1 ("DSE" "S") 1]

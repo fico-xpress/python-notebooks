@@ -1,0 +1,85 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file h4retire_p.mos
+   ```````````````````
+   Financing an early retirement scheme
+
+   To finance a pre-retirement scheme, a bank can invest
+   in three different types of bonds during a given period
+   of years. Bonds can be acquired only at the beginning of
+   the first year. Some technical conditions are defined on
+   the money not invested, the quantity of bonds to be bought,
+   and the available money to be distributed. How many bonds
+   of each type should the bank acquire to minimize the money
+   spent to cover the retirement scheme?
+
+   A MIP model is implemented to determine the best way to
+   finance the retirement plan. Conditionals over sums and
+   the inline 'if' are used to model maturity-based constraints.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "H-4 Retirement"
+ uses "mmxprs"
+
+ parameters
+  NT         = 7                             ! Length of planning period
+  DATASOURCE = "../../data/economics_finance/h4retire_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  BONDS: set of string                       ! Set of bonds (auto-populated)
+  YEARS = 1..NT                              ! Planning period
+
+  DEM:      array(YEARS) of integer          ! Annual payments for retirement
+  VALUE:    array(BONDS) of real             ! Unit price of bonds
+  RATE:     array(BONDS) of real             ! Remuneration rates paid by bonds
+  RET:      array(BONDS) of real             ! Unit annual interest of bonds
+  DUR:      array(BONDS) of real             ! Duration of bonds
+  INTEREST: real                             ! Interest for other secure investment
+
+  buy:     array(BONDS) of mpvar             ! Number of bonds acquired
+  invest:  array(YEARS) of mpvar             ! Other annual investment
+  capital: mpvar                             ! Total capital required
+ end-declarations
+
+ initializations from DATASOURCE
+  DEM VALUE RATE DUR INTEREST
+ end-initializations
+
+ forall(b in BONDS) RET(b):= VALUE(b)*RATE(b)/100
+
+! Annual balances
+ capital - sum(b in BONDS) VALUE(b)*buy(b) - invest(1) = DEM(1)
+
+ forall(t in 2..NT)
+  sum(b in BONDS | DUR(b)+1>=t) (RET(b)*buy(b) +
+                                 if(DUR(b)+1=t, VALUE(b)*buy(b), 0)) +
+   (1+INTEREST/100)*invest(t-1) - if(t<NT, invest(t), 0) = DEM(t)
+
+ forall(b in BONDS) buy(b) is_integer
+
+! Solve the problem: minimize invested capital
+ minimize(capital)
+
+ declarations
+  sol_buy:    array(BONDS) of real           ! Number of bonds per type
+  sol_invest: array(YEARS) of real           ! Annual other investment
+ end-declarations
+
+ forall(b in BONDS) sol_buy(b)    := getsol(buy(b))
+ forall(t in YEARS) sol_invest(t) := getsol(invest(t))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_buy sol_invest VALUE
+ end-initializations
+
+end-model

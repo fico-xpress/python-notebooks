@@ -1,0 +1,70 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file i4exam_p.mos
+   `````````````````
+   Scheduling exams
+
+   A university must schedule the exams of mandatory and optional
+   modules for fourth-year students. No student can have more than
+   one exam at a time; incompatible exams cannot overlap. With no
+   objective to optimize, the model finds any feasible timetable.
+
+   The incompatibilities are modeled as a boolean matrix. The
+   model minimizes a constant (0) to find a feasible solution.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "I-4 Scheduling exams"
+ uses "mmxprs"
+
+ parameters
+  NTIME      = 8                             ! Number of available time slots
+  DATASOURCE = "../../data/timetabling_personnel/i4exam_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  EXAM: set of string                        ! Set of exams (auto-populated)
+  TIME = 1..NTIME                            ! Set of time slots
+
+  INCOMP: array(EXAM,EXAM) of integer        ! 1 if exams cannot overlap
+ end-declarations
+
+ initializations from DATASOURCE
+  INCOMP
+ end-initializations
+
+ declarations
+  plan: array(EXAM,TIME) of mpvar            ! 1 if exam scheduled in slot
+ end-declarations
+
+! Schedule all exams (each exam assigned to exactly one slot)
+ forall(e in EXAM) sum(t in TIME) plan(e,t) = 1
+
+! Respect incompatibilities
+ forall(d,e in EXAM, t in TIME | d<e and INCOMP(d,e)=1)
+  plan(e,t) + plan(d,t) <= 1
+
+ forall(e in EXAM, t in TIME) plan(e,t) is_binary
+
+! Solve the problem (feasibility: minimize constant)
+ minimize(0)
+
+ declarations
+  sol_plan: array(EXAM,TIME) of real         ! Exam-to-slot assignment
+ end-declarations
+
+ forall(e in EXAM, t in TIME) sol_plan(e,t) := getsol(plan(e,t))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_plan
+ end-initializations
+
+end-model

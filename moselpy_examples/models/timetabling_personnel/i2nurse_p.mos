@@ -1,0 +1,102 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file i2nurse_p.mos
+   ``````````````````
+   Work schedule for nurses
+
+   A hospital must schedule nurses across twelve 2-hour periods.
+   The required headcount per period is given. Nurses work 8
+   consecutive hours (4 periods) with a 2-hour break after 6
+   hours. How many nurses should start each period to meet all
+   requirements using as few nurses as possible?
+
+   For a second variant, the total nurse count is capped and
+   nurses can work overtime. Minimize total overtime.
+
+   The demand for a period is covered by nurses starting in that
+   period or in up to 3 preceding periods (capturing the shift
+   structure). Named linctr constraints are used so the demand
+   constraints can be extended in-place for the overtime variant.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "I-2 Scheduling nurses"
+ uses "mmxprs"
+
+ parameters
+  NT         = 12                            ! Number of time periods
+  NUM        = 80                            ! Total available nurses (variant 2)
+  DATASOURCE = "../../data/timetabling_personnel/i2nurse_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  PERIODS = 0..NT-1                             ! Time period indices (0-based)
+  WORK: set of integer                       ! Offsets for currently working nurses
+
+  REQ:       array(PERIODS) of integer          ! Required number of nurses per period
+  Period:    array(PERIODS) of linctr           ! Named demand constraints (rebuildable)
+  start:     array(PERIODS) of mpvar            ! Nurses starting work in a period
+  overt:     array(PERIODS) of mpvar            ! Nurses working overtime (variant 2)
+  sol_start1: array(PERIODS) of real            ! Starting nurses per period (variant 1)
+  sol_start2: array(PERIODS) of real            ! Starting nurses per period (variant 2)
+  sol_overt:  array(PERIODS) of real            ! Overtime per period
+  obj_total:  real                           ! Total nurses required (variant 1)
+ end-declarations
+
+ initializations from DATASOURCE
+  REQ
+ end-initializations
+
+ WORK:= {0, -1, -3, -4}
+
+! Objective: total personnel required
+ Total:= sum(t in PERIODS) start(t)
+
+! Nurses working per time period
+ forall(t in PERIODS) Period(t):= sum(i in WORK) start((t+i+NT) mod NT) >= REQ(t)
+
+ forall(t in PERIODS) start(t) is_integer
+
+! **** Variant 1: minimize total nurses ****
+ minimize(Total)
+
+ obj_total := getobjval
+ forall(t in PERIODS) sol_start1(t) := getsol(start(t))
+
+! **** Variant 2: cap total nurses, minimize overtime ****
+
+! Objective: total overtime worked
+ TotalOvert:= sum(t in PERIODS) overt(t)
+
+! Redefine demand constraints to include overtime coverage
+ forall(t in PERIODS)
+  Period(t):= overt((t-5+NT) mod NT) + sum(i in WORK) start((t+i+NT) mod NT) >= REQ(t)
+
+! Cap on total number of nurses
+ Total <= NUM
+
+ forall(t in PERIODS) do
+  overt(t) is_integer
+  overt(t) <= start(t)
+ end-do
+
+! Solve overtime minimization
+ minimize(TotalOvert)
+
+ forall(t in PERIODS) sol_start2(t) := getsol(start(t))
+ forall(t in PERIODS) sol_overt(t)  := getsol(overt(t))
+
+ initializations to OUTFILE
+  evaluation of obj_total    as 'obj_total'
+  evaluation of getobjval    as 'obj_overt'
+  sol_start1 sol_start2 sol_overt REQ
+ end-initializations
+
+end-model

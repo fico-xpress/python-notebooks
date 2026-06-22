@@ -1,0 +1,71 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file d6cutbar_p.mos
+   ```````````````````
+   Cutting of steel bars into school desk legs
+   (1-dimensional cutting patterns)
+
+   A company produces school desks of various heights. The
+   legs are all cut from steel bars of 1.5 or 2 meters. How
+   should an order be produced to minimize the trim loss?
+
+   Note that each length of steel bars has a unique set of
+   patterns. The total set of patterns is the union of these
+   two sets. This problem also uses a 'set of integer' which is
+   more general than a 'range [of integer]'.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "D-6 Cutting steel bars"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/loading_cutting_stock/d6cutbar_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  PAT1 = 1..6; PAT2 = 7..12              ! Sets of cutting patterns
+  PATTERNS = PAT1 + PAT2                 ! Set of all cutting patterns
+  SIZES: set of integer                  ! Desk heights
+
+  DEM: array(SIZES) of integer           ! Demands for the different heights
+  CUT: array(PATTERNS,SIZES) of integer  ! Cutting patterns
+  LEN: array(range) of integer           ! Lengths of original steel bars
+
+  use: array(PATTERNS) of mpvar          ! Use of cutting patterns
+
+  sol_use: array(PATTERNS) of real       ! Solution: patterns used
+ end-declarations
+
+ initializations from DATASOURCE
+  DEM CUT LEN
+ end-initializations
+
+! Objective: total loss
+ Loss:= sum(p in PAT1) LEN(1)*use(p) + sum(p in PAT2) LEN(2)*use(p) -
+         sum(s in SIZES) 4*DEM(s)*s
+
+! Satisfy demands
+ forall(s in SIZES) sum(p in PATTERNS) CUT(p,s)*use(p) >= 4*DEM(s)
+
+ forall(p in PATTERNS) use(p) is_integer
+
+! Solve the problem
+ minimize(Loss)
+
+! Collect solution
+ forall(p in PATTERNS) sol_use(p):= getsol(use(p))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_use
+ end-initializations
+
+end-model

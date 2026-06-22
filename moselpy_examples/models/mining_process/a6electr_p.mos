@@ -1,0 +1,83 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file a6electr_p.mos
+   `````````````````
+   Production of electricity
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "A-6 Electricity production"
+ uses "mmxprs", "mmsystem"
+
+ parameters
+  DATASOURCE = "../../data/mining_process/a6electr_p.dat"
+  OUTFILE    = ""
+  NT         = 7                            ! Number of time periods
+  NP         = 4                            ! Number of generator types
+ end-parameters
+
+ declarations
+  TIME  = 1..NT                             ! Time periods
+  TYPES = 1..NP                             ! Power generator types
+
+  LEN, DEM: array(TIME) of integer          ! Length and demand of time periods
+  PMIN,PMAX: array(TYPES) of integer        ! Min. & max. output of a generator type
+  CSTART: array(TYPES) of integer           ! Start-up cost of a generator
+  CMIN: array(TYPES) of integer             ! Hourly cost of generator at min. output
+  CADD: array(TYPES) of real                ! Cost/hour/MW of production above min. level
+  AVAIL: array(TYPES) of integer            ! Number of generators per type
+
+  start: array(TYPES,TIME) of mpvar         ! No. of generators started in a period
+  work: array(TYPES,TIME) of mpvar          ! No. of generators working during a period
+  padd: array(TYPES,TIME) of mpvar          ! Production above min. output level
+
+  sol_work: array(TYPES,TIME) of real
+  sol_padd: array(TYPES,TIME) of real
+ end-declarations
+
+ initializations from DATASOURCE
+  LEN DEM PMIN PMAX CSTART CMIN CADD AVAIL
+ end-initializations
+
+! Objective: total daily cost
+ Cost:= sum(p in TYPES, t in TIME) (CSTART(p)*start(p,t) +
+          LEN(t)*(CMIN(p)*work(p,t) + CADD(p)*padd(p,t)))
+
+! Number of generators started per period and per type
+ forall(p in TYPES, t in TIME)
+  start(p,t) >= work(p,t) - if(t>1, work(p,t-1), work(p,NT))
+
+! Limit on power production above minimum level
+ forall(p in TYPES, t in TIME) padd(p,t) <= (PMAX(p)-PMIN(p))*work(p,t)
+
+! Satisfy demands
+ forall(t in TIME) sum(p in TYPES) (PMIN(p)*work(p,t) + padd(p,t)) >= DEM(t)
+
+! Security reserve of 20%
+ forall(t in TIME) sum(p in TYPES) PMAX(p)*work(p,t) >= 1.20*DEM(t)
+
+! Limit number of available generators; numbers of generators are integer
+ forall(p in TYPES, t in TIME) do
+  work(p,t) <= AVAIL(p)
+  work(p,t) is_integer
+ end-do
+
+ minimize(Cost)
+
+ forall(p in TYPES, t in TIME) do
+  sol_work(p,t) := getsol(work(p,t))
+  sol_padd(p,t) := getsol(padd(p,t))
+ end-do
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_work sol_padd
+ end-initializations
+
+end-model

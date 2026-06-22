@@ -1,0 +1,8 @@
+! Data file for burglar_df_p.mos
+
+I: [("value"  "camera") 15 ("value"  "necklace") 100 ("value"  "vase") 90
+    ("value"  "picture") 60 ("value"  "tv") 40 ("value"  "video") 15
+    ("value"  "chest") 10 ("value"  "brick") 1
+    ("weight" "camera")  2 ("weight" "necklace")  20 ("weight" "vase") 20
+    ("weight" "picture") 30 ("weight" "tv") 40 ("weight" "video") 30
+    ("weight" "chest") 60 ("weight" "brick") 10]

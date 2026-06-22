@@ -1,0 +1,84 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file b3jobshop_p.mos
+   ````````````````````
+   Job shop production planning.
+
+   Three types of wallpaper pass through three machines in
+   different orders depending on the design. Processing times
+   differ based on surface and design. What order should the
+   paper be scheduled so that the production is completed as soon
+   as possible.
+
+   Let 'JOBS' represent a printing job for one paper. In total,
+   there are 8 jobs (2 for paper 1, 3 for paper 2, 3 for paper 3).
+   Conjunctive constraints represent the precedence between jobs.
+   Disjunctive constraints show that a machine can only have one
+   job at a time. This problem introduces dynamic arrays and
+   a range index.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "B-3 Job shop"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/scheduling_sequencing/b3jobshop_p.dat"
+  OUTFILE    = ""
+  NJ         = 8     ! Number of jobs (operations)
+ end-parameters
+
+ declarations
+  JOBS=1..NJ                          ! Set of jobs (operations)
+
+  DUR: array(JOBS) of integer         ! Durations of jobs on machines
+  ARC: dynamic array(JOBS,JOBS) of integer   ! Precedence graph
+  DISJ: dynamic array(JOBS,JOBS) of integer  ! Disjunctions between jobs
+
+  start: array(JOBS) of mpvar         ! Start times of jobs
+  finish: mpvar                       ! Schedule completion time
+  y: dynamic array(range) of mpvar    ! Disjunction variables
+  sol_start: array(JOBS) of real      ! Solution: start times
+ end-declarations
+
+ initializations from DATASOURCE
+  DUR ARC DISJ
+ end-initializations
+
+ BIGM:= sum(j in JOBS) DUR(j)         ! Some (sufficiently) large value
+
+! Precedence constraints
+ forall(j in JOBS) finish >= start(j)+DUR(j)
+ forall(i,j in JOBS | exists(ARC(i,j)) ) start(i)+DUR(i) <= start(j)
+
+! Disjunctions
+ d:=1
+ forall(i,j in JOBS | i<j and exists(DISJ(i,j)) ) do
+  create(y(d))
+  y(d) is_binary
+  start(i)+DUR(i) <= start(j)+BIGM*y(d)
+  start(j)+DUR(j) <= start(i)+BIGM*(1-y(d))
+  d+=1
+ end-do
+
+! Bound on latest completion time
+ finish <= BIGM
+
+! Solve the problem: minimize latest completion time
+ minimize(finish)
+
+! Collect solution arrays
+ forall(j in JOBS) sol_start(j) := getsol(start(j))
+
+ initializations to OUTFILE
+  evaluation of getobjval  as 'obj_val'
+  sol_start
+ end-initializations
+
+end-model

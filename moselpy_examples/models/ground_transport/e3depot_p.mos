@@ -1,0 +1,80 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file e3depot_p.mos
+   ``````````````````
+   Optimal depot location for a distribution network
+
+   A company distributes goods from depots to customers.
+   Opening each depot has a fixed cost. Each depot has a
+   capacity. The model determines which depots to open and
+   how to assign customers to depots so that the total
+   cost (fixed + transport) is minimized.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "E-3 Depot location"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/ground_transport/e3depot_p.dat"
+  OUTFILE    = ""
+  ND         = 12    ! Number of depots
+  NC         = 12    ! Number of customers
+ end-parameters
+
+ declarations
+  DEPOTS = 1..ND                              ! Set of depots
+  CUST   = 1..NC                              ! Set of customers
+
+  COST:  array(DEPOTS,CUST) of real           ! Transport cost per unit from depot to customer
+  CFIX:  array(DEPOTS) of real                ! Fixed cost of opening a depot
+  CAP:   array(DEPOTS) of integer             ! Capacity of each depot
+  DEM:   array(CUST) of integer               ! Demand of each customer
+
+  build: array(DEPOTS) of mpvar               ! 1 if depot is opened, 0 otherwise
+  fflow: array(DEPOTS,CUST) of mpvar          ! Fraction of customer demand served by depot
+
+  sol_build: array(DEPOTS) of real            ! Solution: depots opened
+  sol_fflow: array(DEPOTS,CUST) of real       ! Solution: fractional flows
+ end-declarations
+
+ initializations from DATASOURCE
+  COST CFIX CAP DEM
+ end-initializations
+
+! Objective: total fixed cost plus transport cost
+ TotalCost:= sum(d in DEPOTS) CFIX(d)*build(d) +
+             sum(d in DEPOTS, c in CUST) COST(d,c)*fflow(d,c)
+
+! Each customer's demand is fully served
+ forall(c in CUST)
+  sum(d in DEPOTS) fflow(d,c) = 1
+
+! Depot capacity constraint
+ forall(d in DEPOTS)
+  sum(c in CUST) DEM(c)*fflow(d,c) <= CAP(d)*build(d)
+
+! Bounds
+ forall(d in DEPOTS) build(d) is_binary
+ forall(d in DEPOTS, c in CUST) fflow(d,c) <= 1
+
+! Solve the problem
+ minimize(TotalCost)
+
+! Collect solution
+ forall(d in DEPOTS) sol_build(d) := getsol(build(d))
+ forall(d in DEPOTS, c in CUST) sol_fflow(d,c) := getsol(fflow(d,c))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_build
+  sol_fflow
+ end-initializations
+
+end-model

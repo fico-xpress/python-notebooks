@@ -1,0 +1,5 @@
+! Data file for pricebrinc_p.mos
+
+DEM:  150
+COST: [0.8 0.5 0.3]
+B:    [0 50 120 200]

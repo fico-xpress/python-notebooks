@@ -1,0 +1,11 @@
+! Data file for h5budget_p.mos
+
+INCOME: 1900
+ALLOW:  150
+HMIN:   165
+
+EXPENSE: [("Living") 550 ("Rent") 630 ("Telephone") 135
+          ("Electricity") 850 ("Car") 340 ("Tax") 100]
+
+FREQ: [("Living") 1 ("Rent") 1 ("Telephone") 2
+       ("Electricity") 6 ("Car") 1 ("Tax") 4]

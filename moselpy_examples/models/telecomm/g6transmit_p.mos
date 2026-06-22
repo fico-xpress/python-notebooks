@@ -1,0 +1,83 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file g6transmit_p.mos
+   `````````````````````
+   Placing mobile phone transmitters
+
+   A mobile phone operator plans to equip a currently uncovered
+   region. There are 7 possible locations for the transmitters.
+   Each site has a defined number of communities it can serve.
+   Given the construction cost and reach of each site, where
+   should the transmitters be built so that the largest
+   population is covered with the given budget restrictions?
+
+   The formulation as a covering problem is straightforward.
+   Data for 'COVER' is stored in sparse format, where only
+   the entries with value 1 are given. Since this array is
+   declared as a dense array, all other entries are
+   automatically populated with value 0.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Apr. 2002, rev. 2026
+*******************************************************!)
+
+model "G-6 Transmitter placement"
+ uses "mmxprs"
+
+ parameters
+  NCOMMS     = 15                            ! Number of communities
+  NPLACES    = 7                             ! Number of possible transmitter locations
+  BUDGET     = 10                            ! Budget limit
+  DATASOURCE = "../../data/telecomm/g6transmit_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  COMMS  = 1..NCOMMS                         ! Set of communities
+  PLACES = 1..NPLACES                        ! Set of possible transmitter locations
+
+  COST:  array(PLACES) of real               ! Cost of constructing transmitters
+  COVER: array(PLACES,COMMS) of integer      ! Coverage by transmitter locations
+  POP:   array(COMMS) of integer             ! Number of inhabitants (in 1000)
+
+  build:   array(PLACES) of mpvar            ! 1 if transmitter built, 0 otherwise
+  covered: array(COMMS)  of mpvar            ! 1 if community covered, 0 otherwise
+ end-declarations
+
+ initializations from DATASOURCE
+  COST COVER POP
+ end-initializations
+
+! Objective: total population covered
+ Coverage:= sum(c in COMMS) POP(c)*covered(c)
+
+! Towns covered
+ forall(c in COMMS) sum(p in PLACES) COVER(p,c)*build(p) >= covered(c)
+
+! Budget limit
+ sum(p in PLACES) COST(p)*build(p) <= BUDGET
+
+ forall(p in PLACES) build(p) is_binary
+ forall(c in COMMS)  covered(c) is_binary
+
+! Solve the problem
+ maximize(Coverage)
+
+ declarations
+  sol_build:   array(PLACES) of real         ! Selected transmitter sites
+  sol_covered: array(COMMS)  of real         ! Covered communities
+ end-declarations
+
+ forall(p in PLACES) sol_build(p)   := getsol(build(p))
+ forall(c in COMMS)  sol_covered(c) := getsol(covered(c))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_build sol_covered POP COST
+ end-initializations
+
+end-model

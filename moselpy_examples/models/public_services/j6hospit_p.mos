@@ -1,0 +1,83 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file j6hospit_p.mos
+   ```````````````````
+   Compare the efficiency of hospitals (DEA method)
+
+   A city measures the efficiency of four major hospitals
+   using Data Envelopment Analysis (DEA). Each hospital is
+   assessed relative to a fictitious reference hospital
+   constructed as a convex combination of all hospitals.
+   The efficiency index is minimized per hospital. An
+   efficiency of 1 means fully efficient; less than 1 means
+   the hospital could achieve the same services with fewer
+   resources.
+
+   Named linctr constraints (LimServ, LimRes) are reassigned
+   in every loop iteration to adapt the reference hospital
+   to the one currently being evaluated. All four efficiency
+   scores are collected and exported together.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "J-6 Hospital efficiency"
+ uses "mmxprs"
+
+ parameters
+  NHOSP      = 4                             ! Number of hospitals
+  DATASOURCE = "../../data/public_services/j6hospit_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  HOSP = 1..NHOSP                            ! Set of hospitals
+  SERV: set of string                        ! Service indicators (auto-populated)
+  RES:  set of string                        ! Resource indicators (auto-populated)
+
+  INDSERV: array(SERV,HOSP) of real          ! Service indicator values
+  INDRES:  array(RES,HOSP) of real           ! Resource indicator values
+ end-declarations
+
+ initializations from DATASOURCE
+  INDSERV INDRES
+ end-initializations
+
+ declarations
+  eff:   mpvar                               ! Efficiency value (objective)
+  coef:  array(HOSP) of mpvar               ! DEA combination coefficients
+  fserv: array(SERV) of mpvar               ! Service indicators of ref. hospital
+  fres:  array(RES)  of mpvar               ! Resource indicators of ref. hospital
+
+  LimServ: array(SERV) of linctr             ! Service constraints (rebuildable)
+  LimRes:  array(RES)  of linctr             ! Resource constraints (rebuildable)
+
+  efficiencies: array(HOSP) of real          ! Collected efficiency scores
+ end-declarations
+
+! DEA coefficients sum to 1
+ sum(h in HOSP) coef(h) = 1
+
+! Reference hospital indicators
+ forall(s in SERV) fserv(s) = sum(h in HOSP) INDSERV(s,h)*coef(h)
+ forall(r in RES)  fres(r)  = sum(h in HOSP) INDRES(r,h)*coef(h)
+
+! Solve the DEA model for every hospital
+ forall(h in HOSP) do
+  forall(s in SERV) LimServ(s):= fserv(s) >= INDSERV(s,h)
+  forall(r in RES)  LimRes(r) := fres(r)  <= INDRES(r,h)*eff
+
+  minimize(eff)
+  efficiencies(h) := getobjval
+ end-do
+
+ initializations to OUTFILE
+  efficiencies
+ end-initializations
+
+end-model

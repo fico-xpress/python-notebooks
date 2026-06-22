@@ -1,0 +1,103 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file j5tax_p.mos
+   ````````````````
+   Choice of locations for income tax offices
+
+   A graph of cities and roads is provided. The population
+   of each city and road distances are known. Where should
+   NUMLOC tax offices be located to minimize the average
+   weighted distance per inhabitant to the nearest office?
+
+   The all-pairs shortest path distance matrix is computed
+   inside the model using the Floyd-Warshall algorithm.
+   The MIP then uses this distance matrix to select office
+   locations and assign cities to offices.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "J-5 Tax office location"
+ uses "mmxprs"
+
+ parameters
+  NCITIES    = 12                            ! Number of cities
+  NUMLOC     = 3                             ! Number of tax offices to open
+  DATASOURCE = "../../data/public_services/j5tax_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ forward procedure calculatedist
+
+ declarations
+  CITIES = 1..NCITIES                        ! Set of cities
+
+  DIST: array(CITIES,CITIES) of integer      ! All-pairs shortest path distances
+  POP: array(CITIES) of integer              ! Population of cities
+  LEN: dynamic array(CITIES,CITIES) of integer ! Road lengths (sparse)
+
+  build:  array(CITIES) of mpvar             ! 1 if office in city
+  depend: array(CITIES,CITIES) of mpvar      ! (c,d) 1 if city c uses office at d
+ end-declarations
+
+ initializations from DATASOURCE
+  LEN POP
+ end-initializations
+
+! Compute all-pairs shortest paths (Floyd-Warshall)
+ calculatedist
+
+! Objective: total population-weighted distance
+ TotDist:= sum(c,d in CITIES) POP(c)*DIST(c,d)*depend(c,d)
+
+! Assign every city to exactly one office
+ forall(c in CITIES) sum(d in CITIES) depend(c,d) = 1
+
+! Limit total number of offices
+ sum(c in CITIES) build(c) <= NUMLOC
+
+! A city can only depend on an office if the office is built there
+ forall(c,d in CITIES) depend(c,d) <= build(d)
+
+ forall(c in CITIES) build(c) is_binary
+
+! Solve the problem
+ minimize(TotDist)
+
+ declarations
+  sol_build:  array(CITIES) of real          ! Office location decisions
+  sol_depend: array(CITIES,CITIES) of real   ! City-to-office assignments
+ end-declarations
+
+ forall(c in CITIES) sol_build(c) := getsol(build(c))
+ forall(c,d in CITIES) sol_depend(c,d) := getsol(depend(c,d))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_build sol_depend POP DIST
+ end-initializations
+
+!-----------------------------------------------------------------
+
+! Floyd-Warshall shortest path algorithm
+ procedure calculatedist
+  BIGM:=sum(c,d in CITIES | exists(LEN(c,d))) LEN(c,d)
+  forall(c,d in CITIES) DIST(c,d):=BIGM
+  forall(c in CITIES) DIST(c,c):=0
+  forall(c,d in CITIES | exists(LEN(c,d))) do
+   DIST(c,d):=LEN(c,d)
+   DIST(d,c):=LEN(c,d)
+  end-do
+  forall(b,c,d in CITIES | c<d)
+   if DIST(c,d) > DIST(c,b)+DIST(b,d) then
+    DIST(c,d):= DIST(c,b)+DIST(b,d)
+    DIST(d,c):= DIST(c,b)+DIST(b,d)
+   end-if
+ end-procedure
+
+end-model
