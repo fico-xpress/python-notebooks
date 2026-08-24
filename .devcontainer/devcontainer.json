@@ -1,0 +1,4 @@
+{
+  "name": "Default (Jupyter)",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11"
+}

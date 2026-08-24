@@ -1,0 +1,9 @@
+marimo
+xpress
+numpy
+matplotlib
+pandas
+seaborn
+polars
+pyarrow
+networkx

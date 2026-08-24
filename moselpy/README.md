@@ -1,0 +1,29 @@
+# MoselPy examples
+
+**[MoselPy](https://pypi.org/project/moselpy/)** is a Python API for FICO&reg; Xpress Mosel, for compiling and running Mosel models from Python and exchanging data bidirectionally. Ideal for integrating existing Mosel models into Python data science workflows. See [moselpy on PyPI](https://pypi.org/project/moselpy/) and the [MoselPy User Guide and Reference Manual](https://www.fico.com/fico-xpress-optimization/docs/latest/mosel/MoselPy/dhtml).
+
+These notebooks show how to compile and run Mosel models from Python, exchange data bidirectionally, and integrate Mosel optimization into Python data workflows. They are based on examples from the book *Applications of Optimization with Xpress-MP* (Dash Associates, 2002). The original Mosel models are available at [examples.xpress.fico.com](https://examples.xpress.fico.com/example.pl#mosel_app).
+
+> **Requirements:** `pip install moselpy mosellibs xpresslibs` - install all three packages to get the Mosel runtime and solver libraries. No local Xpress installation is needed to run these notebooks. A local FICO&reg; Xpress installation is recommended if you want access to the full set of examples, user guides and documentation, solver libraries, and Xpress Workbench. See the [FICO&reg; Xpress community license](https://www.fico.com/en/fico-xpress-community-license) page to obtain one. If a local installation is present, set `XPRESSDIR` to the Xpress installation directory before starting Jupyter to use it instead of the bundled libraries.
+
+## Running these examples
+
+These are Jupyter notebooks. See [Running the examples using GitHub codespaces](../README.md#running-the-examples-using-github-codespaces) in the main README for instructions on running them via GitHub Codespaces or locally.
+
+Example name | Description | Highlighted Features
+------------- | ------------- | -------
+[intro](intro.ipynb) | Introductory examples (Chapters 1-5): LP, MIP, knapsack and pricebreak discount models | Single execution command vs compile-load-run sequence, `exec_params`, `input_data`, OUTFILE pattern, `find_identifier`, visualizations
+[mining_process](mining_process.ipynb) | Mining and process industries (Chapter A): alloy blending, food production, refinery, sugar, opencast mining, electricity dispatch | Pandas Series/DataFrame input, `find_identifier(use_pandas=True)`, multi-panel dashboards, sensitivity analysis
+[scheduling_sequencing](scheduling_sequencing.ipynb) | Scheduling and Sequencing (Chapter B): stadium construction, flowshop, jobshop, sequencing, painting, line balancing | Model introspection, context manager, `pd.DataFrame` input, `find_identifier` + `unstack`, `StringIO` output capture, iterative solving
+[production_planning](production_planning.ipynb) | Production planning (Chapter C): bicycle, glassware, toys, components, fiber, assignment | Parametric scan with `pd.Series`, sensitivity heatmap, binary I/O, infeasibility detection
+[loading_cutting_stock](loading_cutting_stock.ipynb) | Loading and cutting stock (Chapter D): wagon load balancing, ship loading, tank filling, bin packing, sheet and bar cutting | `model.export_problem`, warm-start via `addmipsol`, parametric variant and objective selection, `pd.DataFrame` 2D input
+[ground_transport](ground_transport.ipynb) | Ground transport (Chapter E): car rental fleet management, min-cost flow, depot location, heating oil delivery, combined transport, van rental | `copy.deepcopy` for scenario cloning, sparse dict input, `model.stop()` with threading, `exec_params` sensitivity analysis
+[air_transport](air_transport.ipynb) | Air transport and logistics (Chapter F): flight connection planning, crew composition, landing scheduling, hub network design, tour planning with subtour elimination | Dynamic set computation with `finalize`, sequential multi-objective MIP, model introspection (`model.name`, `model.version`, `model.size`), context manager (`with mp.load_model`)
+[telecomm](telecomm.ipynb) | Telecommunications network design (Chapter G): network reliability (max flow), mobile network dimensioning, telephone call routing, cable network design, satellite scheduling, transmitter placement | Dynamic sparse arrays with `exists()` and `create()`, `pd.DataFrame` 2D cost input, two consecutive `initializations from` blocks, context manager with iterative in-Mosel algorithm, `exec_params` parametric sensitivity loop
+[economics_finance](economics_finance.ipynb) | Economics and finance (Chapter H): loan selection, publicity planning, portfolio composition, retirement funding, family budgeting, company expansion, mean-variance portfolio | String-keyed dict auto-populates `set of string`, `set of integer` passed from Python, LP relaxation via `XPRS_LIN` flag, `mmnl` module for quadratic objectives, efficient frontier parametric loop
+[timetabling_personnel](timetabling_personnel.ipynb) | Timetabling and personnel scheduling (Chapter I): worker assignment, nurse scheduling, school timetabling, exam scheduling, production planning with transfers, construction site staffing | Two sequential solves in one call, named `linctr` constraints reassigned between solves, dynamic arrays with `exists()` and `create()`, feasibility solve with `minimize(0)`, 3D array result reconstructed as weekly grid
+[public_services](public_services.ipynb) | Public services and utilities (Chapter J): water supply max flow, CCTV camera placement, electoral redistricting, road gritting circuits, tax office location, hospital DEA efficiency | `ARCS: range` auto-populated from arc data, in-Mosel preprocessing before solve (district enumeration, Floyd-Warshall), Eulerian circuit extracted inside Mosel, `linctr` loop for DEA, `exec_params` sensitivity on office count
+
+## Legal and license requirements
+
+See [Legal and license requirements](../README.md#legal-and-license-requirements) in the main README.

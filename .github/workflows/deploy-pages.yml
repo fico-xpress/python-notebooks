@@ -1,0 +1,85 @@
+name: Export and deploy marimo notebooks to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install marimo xpress numpy matplotlib pandas seaborn polars pyarrow networkx
+
+      - name: Export notebooks to HTML
+        run: |
+          mkdir -p _site
+          cd marimo
+          for f in *.py; do
+            name="${f%.py}"
+            marimo export html "$f" -o "../_site/${name}.html" -f
+          done
+
+      - name: Create index page
+        run: |
+          cat > _site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <title>Xpress Marimo Notebooks</title>
+            <style>
+              body { font-family: Calibri, Arial, sans-serif; font-size: 14pt; max-width: 700px; margin: 60px auto; line-height: 1.6; }
+              h1 { font-size: 20pt; }
+              ul { padding-left: 20px; }
+              li { margin: 8px 0; }
+              a { color: #0066cc; }
+            </style>
+          </head>
+          <body>
+            <h1>Xpress Python Notebooks (marimo)</h1>
+            <ul>
+              <li><a href="01_assignment.html">Assignment problem</a></li>
+              <li><a href="02_facility_location.html">Facility location</a></li>
+              <li><a href="03_sudoku.html">Sudoku</a></li>
+              <li><a href="04_portfolio_pandas.html">Portfolio optimization (pandas)</a></li>
+              <li><a href="05_campaign_polars.html">Campaign conversion optimization (polars)</a></li>
+              <li><a href="06_circle_packing.html">Circle packing</a></li>
+              <li><a href="07_unitcommitment_indicators.html">Electricity generation unit commitment</a></li>
+              <li><a href="08_markowitz_multiobj.html">Markowitz portfolio multi-objective optimization</a></li>
+              <li><a href="09_tsp_callbacks.html">Solving a TSP problem using callbacks</a></li>
+            </ul>
+          </body>
+          </html>
+          EOF
+
+      - uses: actions/configure-pages@v4
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment

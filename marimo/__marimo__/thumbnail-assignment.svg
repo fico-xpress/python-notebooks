@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <clipPath id="card">
+      <rect x="48" y="48" width="1104" height="534" rx="24" />
+    </clipPath>
+  </defs>
+
+  <rect width="1200" height="630" fill="#f8fafc"/>
+  <rect x="48" y="48" width="1104" height="534" rx="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+  <rect x="48" y="48" width="16" height="534" fill="#59b39a" clip-path="url(#card)"/>
+
+  <!-- Bipartite assignment icon: two columns of nodes with connecting lines -->
+  <g stroke="#59b39a" stroke-width="4" fill="none" opacity="0.85">
+    <line x1="480" y1="220" x2="720" y2="260"/>
+    <line x1="480" y1="280" x2="720" y2="200"/>
+    <line x1="480" y1="340" x2="720" y2="380"/>
+    <line x1="480" y1="400" x2="720" y2="320"/>
+  </g>
+  <g fill="#0f172a">
+    <circle cx="480" cy="220" r="14"/>
+    <circle cx="480" cy="280" r="14"/>
+    <circle cx="480" cy="340" r="14"/>
+    <circle cx="480" cy="400" r="14"/>
+  </g>
+  <g fill="#59b39a">
+    <circle cx="720" cy="200" r="14"/>
+    <circle cx="720" cy="260" r="14"/>
+    <circle cx="720" cy="320" r="14"/>
+    <circle cx="720" cy="380" r="14"/>
+  </g>
+
+  <text x="100" y="592" fill="#64748b" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial" font-size="22" font-weight="600">
+    marimo
+  </text>
+</svg>

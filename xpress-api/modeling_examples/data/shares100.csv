@@ -1,0 +1,101 @@
+Stock,Return,Sector,ESG score,CV
+Stock_1,0.1598,Healthcare,73.0,0.5393
+Stock_2,0.2018,Technology,95.0,0.6427
+Stock_3,0.0883,Consumer Goods,63.0,0.2355
+Stock_4,0.2048,Finance,68.0,0.336
+Stock_5,0.0818,Finance,65.0,0.4196
+Stock_6,0.0676,Energy,43.0,0.7181
+Stock_7,0.1445,Healthcare,52.0,0.6981
+Stock_8,0.0265,Healthcare,68.0,0.1733
+Stock_9,0.0196,Real Estate,58.0,0.1332
+Stock_10,0.0774,Technology,66.0,0.4317
+Stock_11,0.2673,Technology,78.0,1.1549
+Stock_12,0.1341,Healthcare,58.0,0.4316
+Stock_13,0.0773,Finance,61.0,0.2086
+Stock_14,0.0409,Finance,64.0,0.3441
+Stock_15,0.1019,Technology,77.0,0.4015
+Stock_16,0.0739,Finance,79.0,0.3793
+Stock_17,0.0496,Real Estate,44.0,0.0777
+Stock_18,0.1594,Finance,48.0,0.4047
+Stock_19,0.0746,Industrials,16.0,0.1046
+Stock_20,0.0336,Consumer Goods,67.0,0.1644
+Stock_21,0.2091,Technology,82.0,0.9193
+Stock_22,0.0919,Energy,45.0,0.2624
+Stock_23,0.0056,Real Estate,48.0,0.0917
+Stock_24,0.0616,Utilities,78.0,0.2624
+Stock_25,0.1172,Consumer Goods,47.0,0.3161
+Stock_26,0.1227,Energy,44.0,0.4454
+Stock_27,0.0694,Finance,66.0,0.3349
+Stock_28,0.1212,Utilities,77.0,0.3944
+Stock_29,0.0796,Healthcare,71.0,0.519
+Stock_30,0.1499,Healthcare,87.0,0.4475
+Stock_31,0.0356,Real Estate,53.0,0.0822
+Stock_32,0.0636,Healthcare,61.0,0.6843
+Stock_33,0.1125,Utilities,81.0,0.1672
+Stock_34,0.0771,Utilities,78.0,0.2026
+Stock_35,0.1181,Consumer Goods,59.0,0.39
+Stock_36,0.1789,Technology,95.0,0.4061
+Stock_37,0.0575,Industrials,68.0,0.1609
+Stock_38,-0.0272,Healthcare,85.0,0.6084
+Stock_39,0.0526,Real Estate,52.0,0.1048
+Stock_40,0.1355,Healthcare,51.0,0.514
+Stock_41,0.089,Consumer Goods,69.0,0.1115
+Stock_42,0.1391,Utilities,66.0,0.4191
+Stock_43,0.0615,Finance,55.0,0.6477
+Stock_44,0.1849,Healthcare,79.0,0.7583
+Stock_45,0.1076,Technology,85.0,0.4314
+Stock_46,0.1158,Finance,70.0,0.2123
+Stock_47,0.0649,Consumer Goods,62.0,0.178
+Stock_48,0.1065,Healthcare,57.0,0.5485
+Stock_49,0.1278,Finance,63.0,0.4028
+Stock_50,0.1303,Healthcare,72.0,0.333
+Stock_51,0.0075,Real Estate,51.0,0.0866
+Stock_52,0.0829,Consumer Goods,57.0,0.1787
+Stock_53,0.0487,Industrials,51.0,0.098
+Stock_54,0.1554,Utilities,71.0,0.7106
+Stock_55,0.118,Energy,49.0,1.2458
+Stock_56,0.0032,Utilities,70.0,0.1006
+Stock_57,0.0824,Utilities,90.0,0.2061
+Stock_58,0.0985,Finance,63.0,0.658
+Stock_59,0.0983,Consumer Goods,53.0,0.5341
+Stock_60,0.1986,Healthcare,84.0,0.5444
+Stock_61,0.1554,Energy,36.0,0.9003
+Stock_62,0.1942,Finance,46.0,0.471
+Stock_63,0.1411,Energy,83.0,0.8887
+Stock_64,-0.0093,Industrials,37.0,0.0617
+Stock_65,0.053,Real Estate,50.0,0.1804
+Stock_66,0.0225,Consumer Goods,66.0,0.1183
+Stock_67,0.0463,Finance,65.0,0.5359
+Stock_68,0.0432,Utilities,82.0,0.16
+Stock_69,0.0873,Technology,77.0,1.0248
+Stock_70,0.1588,Finance,48.0,0.6758
+Stock_71,0.1682,Technology,93.0,0.6386
+Stock_72,0.0157,Utilities,71.0,0.1898
+Stock_73,0.0578,Real Estate,63.0,0.1696
+Stock_74,0.0382,Consumer Goods,52.0,0.1913
+Stock_75,0.1613,Healthcare,79.0,1.2117
+Stock_76,0.125,Finance,63.0,0.5637
+Stock_77,0.0528,Utilities,72.0,0.3546
+Stock_78,0.1276,Finance,53.0,0.5832
+Stock_79,0.1906,Industrials,52.0,0.1795
+Stock_80,0.0143,Real Estate,62.0,0.149
+Stock_81,-0.0082,Industrials,57.0,0.0874
+Stock_82,0.1811,Energy,38.0,0.4852
+Stock_83,0.1482,Consumer Goods,69.0,0.3144
+Stock_84,0.1575,Energy,78.0,0.2693
+Stock_85,0.0953,Finance,52.0,0.3743
+Stock_86,0.0555,Consumer Goods,57.0,0.1373
+Stock_87,0.0477,Real Estate,58.0,0.1975
+Stock_88,0.0583,Real Estate,63.0,0.0723
+Stock_89,0.0805,Utilities,82.0,0.148
+Stock_90,0.0941,Finance,87.0,0.3634
+Stock_91,0.1438,Energy,37.0,0.866
+Stock_92,-0.015,Industrials,52.0,0.0958
+Stock_93,0.1166,Healthcare,84.0,0.6689
+Stock_94,0.1879,Technology,79.0,0.6515
+Stock_95,0.0792,Healthcare,57.0,0.1976
+Stock_96,0.0687,Energy,63.0,0.3899
+Stock_97,0.115,Energy,31.0,0.6264
+Stock_98,0.0552,Real Estate,59.0,0.1017
+Stock_99,0.077,Healthcare,77.0,0.3786
+Stock_100,0.0517,Real Estate,44.0,0.0782
