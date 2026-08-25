@@ -10,7 +10,7 @@ The examples are organized into three top-level folders, one per notebook engine
 
 * **[xpress-api/](xpress-api/README.md)** — Jupyter notebooks for the Xpress Python API ([basic_api_examples/](xpress-api/basic_api_examples/), [modeling_examples/](xpress-api/modeling_examples/)).
 * **[moselpy/](moselpy/README.md)** — Jupyter notebooks for MoselPy.
-* **[marimo/](marimo/README.md)** — reactive, browser-based [marimo](https://marimo.io/) notebooks for the Xpress Python API.
+* **[marimo/](marimo/README.md)** — reactive, browser-based [marimo](https://marimo.io/) notebooks for the Xpress Python API. Alternatively, you can browse a [live read-only gallery](https://fico-xpress.github.io/python-notebooks/) of all marimo notebooks, no installation required.
 
 ## Running the examples using GitHub codespaces
 

@@ -36,6 +36,24 @@ jobs:
             marimo export html "$f" -o "../_site/${name}.html" -f
           done
 
+      - name: Inject static-export banner into notebook pages
+        run: |
+          banner='<div style="position:sticky;top:0;z-index:10000;background:#fff3cd;border-bottom:1px solid #d1a954;padding:8px 16px;font-family:Calibri,Arial,sans-serif;font-size:13px;text-align:center;">This is a static, read-only snapshot &mdash; sliders and other controls will not respond. <a href="index.html">Back to notebook list</a> &middot; <a href="https://github.com/fico-xpress/python-notebooks/tree/main/marimo">Run it yourself</a></div>'
+          cd _site
+          for f in *.html; do
+            [ "$f" = "index.html" ] && continue
+            python3 -c "
+          import sys
+          path = sys.argv[1]
+          banner = sys.argv[2]
+          with open(path, encoding='utf-8') as fh:
+              html = fh.read()
+          html = html.replace('<body>', '<body>' + banner, 1)
+          with open(path, 'w', encoding='utf-8') as fh:
+              fh.write(html)
+          " "$f" "$banner"
+          done
+
       - name: Create index page
         run: |
           cat > _site/index.html << 'EOF'
@@ -47,6 +65,7 @@ jobs:
             <style>
               body { font-family: Calibri, Arial, sans-serif; font-size: 14pt; max-width: 700px; margin: 60px auto; line-height: 1.6; }
               h1 { font-size: 20pt; }
+              p.note { font-size: 12pt; color: #555; }
               ul { padding-left: 20px; }
               li { margin: 8px 0; }
               a { color: #0066cc; }
@@ -54,6 +73,7 @@ jobs:
           </head>
           <body>
             <h1>Xpress Python Notebooks (marimo)</h1>
+            <p class="note">These are static, read-only snapshots for browsing &mdash; sliders and other interactive controls will not respond. See the <a href="https://github.com/fico-xpress/python-notebooks/tree/main/marimo">marimo folder</a> for instructions to run them interactively (GitHub Codespaces or locally).</p>
             <ul>
               <li><a href="01_assignment.html">Assignment problem</a></li>
               <li><a href="02_facility_location.html">Facility location</a></li>

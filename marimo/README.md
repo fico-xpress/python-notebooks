@@ -2,6 +2,8 @@
 
 FICO&reg; Xpress Python example notebooks built with [marimo](https://marimo.io/), a reactive, browser-based notebook format.
 
+**Just want to take a look, not run code?** See the [live read-only gallery](https://fico-xpress.github.io/python-notebooks/), a static export of every notebook below, no installation or Codespace setup needed. Each page is a static snapshot: sliders and other interactive controls will not respond. Follow the steps below to run a notebook interactively.
+
 ## Getting started
 
 * [Running marimo notebooks in GitHub Codespaces](#running-marimo-notebooks-in-github-codespaces)
