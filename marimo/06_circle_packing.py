@@ -50,7 +50,7 @@ def _(mo):
 
     The continuous decision variables $x_i$ and $y_i$ represent the vector of $(x,y)$ coordinates of the center point of each circle $i \in CIRCLES$, and variables $r_i$ the corresponding radius.
 
-    The goal is to maximize the area inside the unit square occupied by circles, that is, the sum of the radii of all circles:
+    The goal is to maximize the sum of the radii of all circles:
 
     $$\max \sum_{i \in CIRCLES} r_{i}$$
 
