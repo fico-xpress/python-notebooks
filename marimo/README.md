@@ -50,7 +50,7 @@ Please note that the creation of the codespace may take 3-4 minutes; we ask for 
 
 If you would rather not use Codespaces, you can run the notebooks on your own machine instead.
 
-**Prerequisites:** [Python 3.11+](https://www.python.org/downloads/) and [Git](https://git-scm.com/downloads) installed.
+**Prerequisites:** [Python 3.13+](https://www.python.org/downloads/) and [Git](https://git-scm.com/downloads) installed.
 
 1. Clone the repository and move into the `marimo/` folder:
 

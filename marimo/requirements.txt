@@ -1,4 +1,4 @@
-marimo
+marimo>=0.23.0
 xpress
 numpy
 matplotlib

@@ -22,10 +22,10 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.13"
 
       - name: Install dependencies
-        run: pip install marimo xpress numpy matplotlib pandas seaborn polars pyarrow networkx
+        run: pip install "marimo>=0.23.0" xpress numpy matplotlib pandas seaborn polars pyarrow networkx
 
       - name: Export notebooks to HTML
         run: |
@@ -38,7 +38,7 @@ jobs:
 
       - name: Inject static-export banner into notebook pages
         run: |
-          banner='<div style="position:sticky;top:0;z-index:10000;background:#fff3cd;border-bottom:1px solid #d1a954;padding:8px 16px;font-family:Calibri,Arial,sans-serif;font-size:13px;text-align:center;">This is a static, read-only snapshot &mdash; sliders and other controls will not respond. <a href="index.html">Back to notebook list</a> &middot; <a href="https://github.com/fico-xpress/python-notebooks/tree/main/marimo">Run it yourself</a></div>'
+          banner='<div style="position:sticky;top:0;z-index:10000;background:#fff3cd;border-bottom:1px solid #d1a954;padding:8px 16px;font-family:Calibri,Arial,sans-serif;font-size:13px;text-align:center;">This is a static, read-only snapshot &mdash; sliders and other controls will not respond. <a href="index.html" style="color:#0066cc;text-decoration:underline;">&raquo; Back to notebook list</a> &middot; <a href="https://github.com/fico-xpress/python-notebooks/tree/main/marimo" style="color:#0066cc;text-decoration:underline;">&raquo; Run it yourself</a></div>'
           cd _site
           for f in *.html; do
             [ "$f" = "index.html" ] && continue
