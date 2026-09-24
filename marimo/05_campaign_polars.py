@@ -62,7 +62,7 @@ def _(mo):
     * The total campaign cost must not exceed the available budget.
     * Each channel has a capacity limit (maximum percentage of customers that can be contacted).
 
-    The input data file **[customers1000.csv](https://github.com/fico-xpress/python-notebooks/blob/main/modeling_examples/data/customers1000.csv)** provides customer data with the following fields:
+    The input data file **[customers1000.csv](https://github.com/fico-xpress/python-notebooks/blob/main/marimo/public/data/customers1000.csv)** provides customer data with the following fields:
 
     * *CustomerIds*: Unique customer identifier.
     * *Name*: Customer name.
@@ -146,7 +146,7 @@ def _(mo, num_customers_slider, budget_slider):
 
     # Load the customer dataset (resolved relative to this notebook's own directory,
     # so it works regardless of the current working directory)
-    customers = pl.read_csv(mo.notebook_dir() / "data" / "customers1000.csv", n_rows=NUM_CUSTOMERS)
+    customers = pl.read_csv(mo.notebook_dir() / "public" / "data" / "customers1000.csv", n_rows=NUM_CUSTOMERS)
 
     # Customer data overview
     mo.show_code(mo.vstack([mo.md("**Data sample for the first 5 rows:**"), customers.head()]), position="above")
