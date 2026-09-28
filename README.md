@@ -12,18 +12,6 @@ The examples are organized into three top-level folders, one per notebook engine
 * **[moselpy/](moselpy/README.md)** — Jupyter notebooks for MoselPy.
 * **[marimo/](marimo/README.md)** — reactive, browser-based [marimo](https://marimo.io/) notebooks for the Xpress Python API. Alternatively, you can browse a [live read-only gallery](https://fico-xpress.github.io/python-notebooks/) of all marimo notebooks, no installation required.
 
-## Running the marimo examples using molab
-
-[molab](https://molab.marimo.io/) is marimo's free cloud-hosted notebook environment. It is a convenient option for running these public examples: single click open a notebook in your browser, run it on a temporary server, or fork it into your workspace to experiment with the code.
-
-Try the Project Assignment example:
-
-[![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/01_assignment.py)
-
-See [all nine notebooks and the molab walkthrough](marimo/README.md#running-marimo-notebooks-in-molab). The example datasets are included automatically.
-
-**Privacy and intended use:** molab is useful for education, demonstrations, and interactive exploration. Notebooks in molab are public but unlisted by default: anyone with a link can view them. Do not put confidential data, proprietary models, or credentials in notebook code, outputs, or uploaded files.
-
 ## Running the examples using GitHub codespaces
 
 ### Jupyter notebooks (`xpress-api/`, `moselpy/`)
@@ -47,6 +35,8 @@ See [all nine notebooks and the molab walkthrough](marimo/README.md#running-mari
 marimo notebooks require an extra step not needed for Jupyter: when creating the codespace, you must explicitly choose the **"Marimo Xpress Notebooks"** dev container configuration from the dropdown (via **Create codespace** > **...** > **New with options**), instead of the default **"Default (Jupyter)"** configuration.
 
 See [marimo/README.md](marimo/README.md) for the full walkthrough with screenshots.
+
+You can also run the marimo notebooks in [molab](marimo/README.md#running-marimo-notebooks-in-molab), marimo's free cloud-hosted notebook environment, no installation required.
 
 ## Documentation and other examples
 

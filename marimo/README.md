@@ -2,45 +2,13 @@
 
 FICO&reg; Xpress Python example notebooks built with [marimo](https://marimo.io/), a reactive, browser-based notebook format.
 
-**Try an interactive example in your browser:** start with [molab](#running-marimo-notebooks-in-molab), a cloud-hosted marimo environment for learning and experimentation. Choose a notebook from the badges below; read the privacy notes before running it.
-
 **Just want to take a look, not run code?** See the [live read-only gallery](https://fico-xpress.github.io/python-notebooks/), a static export of every notebook below, no installation or Codespace setup needed. Each page is a static snapshot: sliders and other interactive controls will not respond. Follow the steps below to run a notebook interactively.
 
 ## Getting started
 
-* [Running marimo notebooks in molab](#running-marimo-notebooks-in-molab)
 * [Running marimo notebooks in GitHub Codespaces](#running-marimo-notebooks-in-github-codespaces)
+* [Running marimo notebooks in molab](#running-marimo-notebooks-in-molab)
 * [Running marimo notebooks locally](#running-marimo-notebooks-locally)
-
-## Running marimo notebooks in molab
-
-[molab](https://molab.marimo.io/) is marimo's free cloud-hosted notebook environment. Use it to learn from these public examples, explore the optimization models with interactive controls, and experiment with the code in your browser. You do not need to install Python locally or create a Codespace.
-
-**Before you start:** molab notebooks are public but unlisted by default. Anyone with a notebook's link can view it; an unlisted link is not private access control. Use the public example data, and keep confidential customer data, proprietary models, credentials, and license keys out of notebook code, outputs, and uploaded files. For private work or a full development environment, use an appropriately configured [GitHub Codespace](#running-marimo-notebooks-in-github-codespaces) or [run locally](#running-marimo-notebooks-locally).
-
-1. Choose an **Open in molab** badge below. It opens a preview of that notebook from this repository's `main` branch. GitHub remains the source of the shared example; the link follows updates to the original notebook.
-2. Choose **Run it now** to run the notebook on a temporary server, or **Fork** to make an editable copy in your own molab workspace. Sign in or create a molab account when prompted.
-3. If prompted, use marimo's package manager to install missing imports, including `xpress`. Then run the cells and try the sliders. These examples use the native Xpress solver, so use molab's server execution, not its WebAssembly preview. Changes to your fork do not update the FICO repository.
-
-molab is an interactive notebook environment for exploration and teaching. Temporary runs are not saved to your workspace, and sessions have time limits. Fork a notebook to keep an editable copy, and download any results you need to retain. See the [molab documentation](https://docs.marimo.io/guides/molab/) for current execution, sharing, package, and storage behavior, and its [usage restrictions](https://molab.marimo.io/pages/molab/restrictions) for supported use.
-
-### Open an example
-
-| Notebook source | Topic | Run in molab |
-| --- | --- | --- |
-| [Project Assignment](01_assignment.py) | Binary assignment model | [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/01_assignment.py) |
-| [Facility Location](02_facility_location.py) | Mixed-integer location model | [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/02_facility_location.py) |
-| [Sudoku](03_sudoku.py) | Feasibility problem | [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/03_sudoku.py) |
-| [Portfolio Optimization](04_portfolio_pandas.py) | Pandas dataframes | [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/04_portfolio_pandas.py) |
-| [Campaign Conversion](05_campaign_polars.py) | Polars dataframes | [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/05_campaign_polars.py) |
-| [Circle Packing](06_circle_packing.py) | Nonlinear optimization with Xpress Global | [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/06_circle_packing.py) |
-| [Unit Commitment](07_unitcommitment_indicators.py) | Indicator constraints | [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/07_unitcommitment_indicators.py) |
-| [Markowitz Portfolio Optimization](08_markowitz_multiobj.py) | Multi-objective quadratic programming | [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/08_markowitz_multiobj.py) |
-| [TSP with Callbacks](09_tsp_callbacks.py) | Solver callbacks and cut generation | [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/09_tsp_callbacks.py) |
-
-### Example data
-
-The portfolio and campaign datasets are included in [public/data/](public/data/). molab imports this adjacent `public/` folder for both temporary runs and forks, so you do not need to upload the CSVs manually. The notebooks read the same files when run locally or in GitHub Codespaces.
 
 ## Running marimo notebooks in GitHub Codespaces
 
@@ -79,9 +47,30 @@ Please note that the creation of the codespace may take 3-4 minutes; we ask for 
 
    <p align="center"><img src="docs/images/controls.png" alt="assignment notebook controls with sliders" width="550"></p>
 
+## Running marimo notebooks in molab
+
+[molab](https://molab.marimo.io/) is marimo's free cloud-hosted notebook environment. Use it to learn from these public examples, explore the optimization models with interactive controls, and experiment with the code in your browser. You do not need to install Python locally or create a Codespace.
+
+**Before you start:** molab notebooks are public but unlisted by default. Anyone with a notebook's link can view it; an unlisted link is not private access control. Use the public example data, and keep confidential customer data, proprietary models, credentials, and license keys out of notebook code, outputs, and uploaded files.
+
+Click on a button below to run it with molab and follow the instructions:
+
+* **Project Assignment:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/01_assignment.py)
+* **Facility Location:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/02_facility_location.py)
+* **Sudoku:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/03_sudoku.py)
+* **Portfolio Optimization:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/04_portfolio_pandas.py)
+* **Campaign Conversion:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/05_campaign_polars.py)
+* **Circle Packing:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/06_circle_packing.py)
+* **Unit Commitment:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/07_unitcommitment_indicators.py)
+* **Markowitz Portfolio Optimization:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/08_markowitz_multiobj.py)
+* **TSP with Callbacks:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/09_tsp_callbacks.py)
+
+1. Choose **Run it now** to run the notebook on a temporary server. Temporary runs are not saved to your workspace, and sessions have time limits. **Fork** to make an editable copy in your own molab workspace. See the [molab documentation](https://docs.marimo.io/guides/molab/) for current execution, sharing, package, and storage behavior, and its [usage restrictions](https://molab.marimo.io/pages/molab/restrictions) for supported use. **Sign in** or create a molab account when prompted.
+2. If prompted, use marimo's package manager to install missing imports, including `xpress`. Then run the cells and try the sliders. Changes to your fork do not update the FICO repository.
+
 ## Running marimo notebooks locally
 
-If you would rather not use Codespaces, you can run the notebooks on your own machine instead.
+If you would rather not use [Codespaces](#running-marimo-notebooks-in-github-codespaces) or [molab](#running-marimo-notebooks-in-molab), you can run the notebooks on your own machine instead.
 
 **Prerequisites:** [Python 3.13+](https://www.python.org/downloads/) and [Git](https://git-scm.com/downloads) installed.
 
