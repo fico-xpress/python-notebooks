@@ -29,7 +29,4 @@
     <circle cx="720" cy="380" r="14"/>
   </g>
 
-  <text x="100" y="592" fill="#536b82" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial" font-size="22" font-weight="600">
-    FICO® Xpress
-  </text>
 </svg>

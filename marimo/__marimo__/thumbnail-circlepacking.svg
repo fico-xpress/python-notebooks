@@ -16,7 +16,4 @@
   <circle cx="640" cy="380" r="45" fill="none" stroke="#0a6de6" stroke-width="5"/>
   <circle cx="550" cy="410" r="28" fill="none" stroke="#0a6de6" stroke-width="5"/>
 
-  <text x="100" y="592" fill="#536b82" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial" font-size="22" font-weight="600">
-    FICO® Xpress
-  </text>
 </svg>
