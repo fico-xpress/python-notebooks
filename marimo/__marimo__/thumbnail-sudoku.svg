@@ -5,23 +5,20 @@
     </clipPath>
   </defs>
 
-  <rect width="1200" height="630" fill="#f8fafc"/>
-  <rect x="48" y="48" width="1104" height="534" rx="24" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
-  <rect x="48" y="48" width="16" height="534" fill="#59b39a" clip-path="url(#card)"/>
+  <rect width="1200" height="630" fill="#edf4fb"/>
+  <rect x="48" y="48" width="1104" height="534" rx="24" fill="#ffffff" stroke="#dbe5ef" stroke-width="2"/>
+  <rect x="48" y="48" width="16" height="534" fill="#0a6de6" clip-path="url(#card)"/>
 
   <!-- 3x3 grid icon -->
-  <g fill="none" stroke="#0f172a" stroke-width="3">
+  <g fill="none" stroke="#123554" stroke-width="3">
     <rect x="480" y="220" width="240" height="240"/>
     <line x1="560" y1="220" x2="560" y2="460"/>
     <line x1="640" y1="220" x2="640" y2="460"/>
     <line x1="480" y1="300" x2="720" y2="300"/>
     <line x1="480" y1="380" x2="720" y2="380"/>
   </g>
-  <g fill="none" stroke="#59b39a" stroke-width="6">
+  <g fill="none" stroke="#0a6de6" stroke-width="6">
     <rect x="480" y="220" width="240" height="240"/>
   </g>
 
-  <text x="100" y="592" fill="#64748b" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial" font-size="22" font-weight="600">
-    marimo
-  </text>
 </svg>
