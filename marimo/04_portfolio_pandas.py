@@ -64,7 +64,7 @@ def _(mo):
     * The ESG score amongst the selected stocks, weighted by fraction, needs to be at least 70.
     * The weighted average CV score should not exceed 0.5.
 
-    The input data file **[shares100.csv](https://github.com/fico-xpress/python-notebooks/blob/main/modeling_examples/data/shares100.csv)** provides data, in tabular form, related to 100 stocks with the following fields:
+    The input data file **[shares100.csv](https://github.com/fico-xpress/python-notebooks/blob/main/marimo/public/data/shares100.csv)** provides data, in tabular form, related to 100 stocks with the following fields:
 
     * *Stock*: Name of the stock.
     * *Return*: The expected return for the investment cycle ahead, per unit of stock.
@@ -122,7 +122,7 @@ def _(mo):
     mo.md(r"""
     We start by importing the essential libraries for optimization (`xpress`), data manipulation (`pandas`, `numpy`), and visualization (`matplotlib`, `seaborn`).
 
-    After defining the value for the constants needed for the mathematical model (from the **Model parameters** controls above), we load the dataset included in the file named **[shares100.csv](https://github.com/fico-xpress/python-notebooks/blob/main/modeling_examples/data/shares100.csv)** (which must be present in the "data" directory) containing stock information into a Pandas dataframe. Then, we display the first five rows to give a quick overview of the data structure and contents.
+    After defining the value for the constants needed for the mathematical model (from the **Model parameters** controls above), we load the dataset included in the file named **[shares100.csv](https://github.com/fico-xpress/python-notebooks/blob/main/marimo/public/data/shares100.csv)** (which must be present in the "public/data" directory) containing stock information into a Pandas dataframe. Then, we display the first five rows to give a quick overview of the data structure and contents.
     """)
     return
 
@@ -152,7 +152,7 @@ def _(
 
     # Load the shares dataset (resolved relative to this notebook's own directory,
     # so it works regardless of the current working directory)
-    shares_df = pd.read_csv(mo.notebook_dir() / "data" / "shares100.csv")
+    shares_df = pd.read_csv(mo.notebook_dir() / "public" / "data" / "shares100.csv")
 
     # Share data overview
     mo.show_code(mo.vstack([mo.md("**Data sample for the first 5 rows:**"), shares_df.head()]), position="above")

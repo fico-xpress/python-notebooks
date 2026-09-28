@@ -36,6 +36,8 @@ marimo notebooks require an extra step not needed for Jupyter: when creating the
 
 See [marimo/README.md](marimo/README.md) for the full walkthrough with screenshots.
 
+You can also run the marimo notebooks in [molab](marimo/README.md#running-marimo-notebooks-in-molab), marimo's free cloud-hosted notebook environment, no installation required.
+
 ## Documentation and other examples
 
 * [Python Interface Reference Manual](https://www.fico.com/fico-xpress-optimization/docs/latest/solver/optimizer/python/HTML)
