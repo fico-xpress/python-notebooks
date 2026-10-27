@@ -1,0 +1,91 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file g2dimens_p.mos
+   ```````````````````
+   Dimensioning of a mobile phone network
+
+   Consider a network of 10 cells and a 5-node ring of hubs
+   (simple hubs + one MTSO = Mobile Telephone Switching Office
+   that controls the network) with defined capacity.
+   The more links between a cell and the ring, the higher the
+   reliability of the network. The traffic in this system is
+   equivalent to bidirectional circuits. The capacity is the
+   number of simultaneous calls during peak periods. The
+   required number of connections, forecasted traffic, and the
+   cost per connection are known. Which connections of cells to
+   the ring minimize the connection costs while still meeting
+   the traffic demand within the capacity limit?
+
+   First, ensure that the ring capacity is sufficiently large to
+   meet all traffic requirements. If not, execution stops.
+   A simple MIP formulation follows.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Apr. 2002, rev. 2026
+*******************************************************!)
+
+model "G-2 Mobile network dimensioning"
+ uses "mmxprs"
+
+ parameters
+  NHUBS      = 4                             ! Number of simple hub nodes
+  MTSO       = 5                             ! Node number of MTSO
+  NCELLS     = 10                            ! Number of cells
+  DATASOURCE = "../../data/telecomm/g2dimens_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  HUBS  = 1..NHUBS                           ! Simple hub nodes
+  NODES = HUBS+{MTSO}                        ! Set of nodes (simple hubs + MTSO)
+  CELLS = 1..NCELLS                          ! Cells to connect
+
+  CAP:  integer                              ! Capacity of ring segments
+  COST: array(CELLS,NODES) of integer        ! Connection cost
+  TRAF: array(CELLS) of integer              ! Traffic from every cell
+  CNCT: array(CELLS) of integer              ! Connections of a cell to the ring
+
+  ifconnect: array(CELLS,NODES) of mpvar     ! 1 if cell connected to node,
+                                             ! 0 otherwise
+ end-declarations
+
+ initializations from DATASOURCE
+  CAP COST TRAF CNCT
+ end-initializations
+
+! Check ring capacity
+ if not (sum(c in CELLS) TRAF(c)*(1-1/CNCT(c)) <= 2*CAP) then
+  writeln("Ring capacity not sufficient")
+  exit(0)
+ end-if
+
+! Objective: total cost
+ TotCost:= sum(c in CELLS, n in NODES) COST(c,n)*ifconnect(c,n)
+
+! Number of connections per cell
+ forall(c in CELLS) sum(n in NODES) ifconnect(c,n) = CNCT(c)
+
+! Ring capacity
+ sum(c in CELLS, n in HUBS) (TRAF(c)/CNCT(c))*ifconnect(c,n) <= 2*CAP
+
+ forall(c in CELLS, n in NODES) ifconnect(c,n) is_binary
+
+! Solve the problem
+ minimize(TotCost)
+
+ declarations
+  sol_ifconnect: array(CELLS,NODES) of real  ! Cell-to-node assignments
+ end-declarations
+
+ forall(c in CELLS, n in NODES) sol_ifconnect(c,n) := getsol(ifconnect(c,n))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_ifconnect
+ end-initializations
+
+end-model

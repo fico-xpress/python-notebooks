@@ -1,0 +1,70 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file f1connect_p.mos
+   ````````````````````
+   Planning flight connections at a hub
+
+   An airline has 6 planes landing within 90 minutes. During
+   the following hour, these planes must travel to 6 new
+   destinations. How should the incoming planes be used for
+   the new departures to minimize the number of passengers who
+   must change planes during the connection?
+
+   For infeasible departure assignments, a large negative
+   number is assigned for how many passengers will remain on
+   the plane during the connection. Maximizing passengers who
+   stay on the plane eliminates these infeasible departures.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "F-1 Flight connections"
+ uses "mmxprs"
+
+ parameters
+  NPLANES    = 6                             ! Number of planes
+  DATASOURCE = "../../data/air_transport/f1connect_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  PLANES = 1..NPLANES                        ! Set of airplanes
+
+  PASS: array(PLANES,PLANES) of integer      ! Passengers with flight connections
+
+  cont: array(PLANES,PLANES) of mpvar        ! 1 if flight i continues to j
+ end-declarations
+
+ initializations from DATASOURCE
+  PASS
+ end-initializations
+
+! Objective: number of passengers on connecting flights
+ Transfer:= sum(i,j in PLANES) PASS(i,j)*cont(i,j)
+
+! One incoming and one outgoing flight per plane
+ forall(i in PLANES) sum(j in PLANES) cont(i,j) = 1
+ forall(j in PLANES) sum(i in PLANES) cont(i,j) = 1
+
+ forall(i,j in PLANES) cont(i,j) is_binary
+
+! Solve the problem: maximize the number of passengers staying on board
+ maximize(Transfer)
+
+ declarations
+  sol_cont: array(PLANES,PLANES) of real     ! Connection assignments
+ end-declarations
+
+ forall(i,j in PLANES) sol_cont(i,j) := getsol(cont(i,j))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_cont
+ end-initializations
+
+end-model

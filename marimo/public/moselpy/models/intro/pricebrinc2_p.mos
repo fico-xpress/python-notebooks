@@ -1,0 +1,74 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file pricebrinc2_p.mos
+   ````````````````````
+   Incremental pricebreaks formulated with 
+   binary variables   
+
+   This model represents the situation where we buy a certain
+   number of items and we get discounts incrementally. The
+   unit cost for items between 0 and B1 is C1, whereas items
+   between B1 and B2 cost C2 each, and items between B2 and
+   B3 cost C3 each.
+
+   We model the incremental price breaks by using binary
+   decision variables. Binary variable 'b(i)' takes value 1
+   if we have bought any items at a unit cost of 'COST(i)'.
+   Decision variables 'x(i)' is the number of items bought at
+   price 'COST(i)'.
+
+   - for use with MoselPy -
+
+   (c) 2008 Fair Isaac Corporation
+       author: S. Heipcke, Sep. 2006, rev. 2026
+*******************************************************!)
+
+model "Incremental pricebreaks (binaries)"
+ uses "mmxprs"
+ 
+
+ parameters
+  OUTFILE = ""
+  NB         = 3                      ! Number of price bands
+ end-parameters
+
+ declarations
+  BREAKS = 1..NB
+  COST: array(BREAKS) of real           ! Cost per unit
+  x: array(BREAKS) of mpvar             ! Number of items bought at a price
+  b: array(BREAKS) of mpvar             ! Indicators of price bands
+  B: array(0..NB) of real               ! Break points of cost function
+  public sol_x: array(BREAKS) of real
+ end-declarations
+ 
+ DEM:= 150                              ! Demand
+ B::  [0, 50, 120, 200]
+ COST:: [0.8, 0.5, 0.3]
+ 
+ forall(i in BREAKS) b(i) is_binary
+
+! Objective: total price
+ TotalCost:= sum(i in BREAKS) COST(i)*x(i)  
+
+! Meet the demand
+ sum(i in BREAKS) x(i) = DEM 
+
+! Lower and upper bounds on quantities
+ forall(i in 1..NB-1) (B(i)-B(i-1)) * b(i+1) <= x(i)
+ forall(i in BREAKS)  x(i) <= (B(i)-B(i-1)) * b(i)
+
+! Sequence of price intervals
+ forall(i in 1..NB-1) b(i) >= b(i+1)
+
+! Solve the problem
+ minimize(TotalCost)
+
+ forall(i in BREAKS) sol_x(i) := getsol(x(i))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_x
+ end-initializations
+end-model

@@ -1,0 +1,74 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file e5combine_p.mos
+   ````````````````````
+   Combined transport: choosing modes across route legs
+
+   Goods must be transported over four route legs. Three
+   transport modes (rail, road, air) are available for
+   each leg. A changeover cost is incurred when switching
+   modes between consecutive legs. The model minimizes
+   total transport and changeover cost.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "E-5 Combined transport"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/ground_transport/e5combine_p.dat"
+  OUTFILE    = ""
+  NL         = 4    ! Number of route legs
+ end-parameters
+
+ declarations
+  LEGS  = 1..NL                                   ! Set of route legs
+  MODES: set of string                             ! Set of transport modes (auto-populated)
+
+  CTRANS: array(MODES,LEGS) of integer             ! Transport cost: mode x leg
+  CCHG:   array(MODES,MODES) of integer            ! Changeover cost between modes
+
+  use:    array(MODES,LEGS) of mpvar               ! 1 if mode used on leg, 0 otherwise
+  chg:    array(MODES,MODES,LEGS) of mpvar         ! 1 if changeover from m1 to m2 before leg
+
+  sol_use: array(MODES,LEGS) of real               ! Solution: mode selection per leg
+ end-declarations
+
+ initializations from DATASOURCE
+  CTRANS CCHG
+ end-initializations
+
+ finalize(MODES)
+
+! Objective: total transport + changeover cost
+ TotalCost:= sum(m in MODES, l in LEGS) CTRANS(m,l)*use(m,l) +
+             sum(m1 in MODES, m2 in MODES, l in 2..NL) CCHG(m1,m2)*chg(m1,m2,l)
+
+! Exactly one mode per leg
+ forall(l in LEGS) sum(m in MODES) use(m,l) = 1
+
+! Changeover detection: if mode changes from m1 on leg l-1 to m2 on leg l
+ forall(m1 in MODES, m2 in MODES, l in 2..NL | m1<>m2)
+  chg(m1,m2,l) >= use(m1,l-1) + use(m2,l) - 1
+
+ forall(m in MODES, l in LEGS) use(m,l) is_binary
+ forall(m1 in MODES, m2 in MODES, l in 2..NL) chg(m1,m2,l) >= 0
+
+! Solve the problem
+ minimize(TotalCost)
+
+! Collect solution
+ forall(m in MODES, l in LEGS) sol_use(m,l) := getsol(use(m,l))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_use
+ end-initializations
+
+end-model

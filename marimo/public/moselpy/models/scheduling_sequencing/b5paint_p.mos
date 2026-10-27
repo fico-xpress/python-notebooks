@@ -1,0 +1,80 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file b5paint_p.mos
+   ``````````````````
+   Planning of paint production
+
+   5 batches of paint need to be produced each week. The blender
+   needs cleaning between each batch. Blending and cleaning
+   times vary by color and paint type. What is the order of the
+   batches so that all 5 are completed in the quickest time?
+
+   This is a TSP-like formulation. The 'succ' variables form a
+   Hamiltonian cycle over the batches.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "B-5 Paint production"
+ uses "mmxprs", "mmsystem"
+
+ parameters
+  DATASOURCE = "../../data/scheduling_sequencing/b5paint_p.dat"
+  OUTFILE    = ""
+  NJ         = 5                     ! Number of paint batches (=jobs)
+ end-parameters
+
+ declarations
+  JOBS=1..NJ
+
+  DUR: array(JOBS) of integer        ! Durations of jobs
+  CLEAN: array(JOBS,JOBS) of integer ! Cleaning times between jobs
+
+  succ: array(JOBS,JOBS) of mpvar    ! =1 if batch i is followed by batch j
+  y: array(JOBS) of mpvar            ! Variables for excluding subtours
+  sol_succ: array(JOBS,JOBS) of real ! Solution: successor assignment
+ end-declarations
+
+ initializations from DATASOURCE
+  DUR CLEAN
+ end-initializations
+
+! Objective: minimize the duration of a production cycle
+ CycleTime:= sum(i,j in JOBS | i<>j) (DUR(i)+CLEAN(i,j))*succ(i,j)
+
+! One successor and one predecessor per batch
+ forall(i in JOBS) sum(j in JOBS | i<>j) succ(i,j) = 1
+ forall(j in JOBS) sum(i in JOBS | i<>j) succ(i,j) = 1
+
+! Exclude subtours
+ forall(i in JOBS, j in 2..NJ | i<>j) y(j) >= y(i) + 1 - NJ * (1 - succ(i,j))
+
+ forall(i,j in JOBS | i<>j) succ(i,j) is_binary
+
+! Solve the problem
+ minimize(CycleTime)
+
+! Print production sequence
+ writeln("Minimum cycle time: ", getobjval, " min")
+ writeln("Batch  Duration  Cleaning")
+ first:=1
+ repeat
+  second:= round(sum(j in JOBS | first<>j) j*getsol(succ(first,j)))
+  writeln(formattext("  %g%9g%9g", first, DUR(first), CLEAN(first,second)))
+  first:=second
+ until (second=1)
+
+! Collect solution array
+ forall(i,j in JOBS | i<>j) sol_succ(i,j) := getsol(succ(i,j))
+
+ initializations to OUTFILE
+  evaluation of getobjval  as 'obj_val'
+  sol_succ
+ end-initializations
+
+end-model

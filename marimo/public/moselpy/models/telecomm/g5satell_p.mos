@@ -1,0 +1,129 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file g5satell_p.mos
+   ```````````````````
+   Scheduling of telecommunications via satellite
+
+   A digital telecommunications system via satellite contains
+   a satellite and a set of stations on earth. The satellite
+   divides its time between the stations. Consider 4 transmitting
+   stations in the U.S. and 4 receiving stations in Europe.
+   The quantity of data transmitted between stations is known.
+   A specific permutation of connections of transmitters and
+   receivers that allows routing part of the traffic is called
+   a 'mode'. The portion of a traffic demand transmitted during
+   a mode is a 'packet' of data. The duration of a mode is the
+   length of its longest packet. Determine the schedule of
+   satellite modes with minimal total duration.
+
+   This program implements the algorithm of Gonzalez and Sahni.
+   The inter-station traffic must be translated into a quasi
+   bistochastic matrix via data preprocessing. The problem
+   definition is then incremental so that after each solution
+   of the MIP, the matrix is updated. Since the entire problem
+   is redefined in every iteration of the while loop, each
+   constraint is named so that they may be replaced.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Apr. 2002, rev. 2026
+*******************************************************!)
+
+model "G-5 Satellite scheduling"
+ uses "mmxprs"
+
+ parameters
+  NTRANSM    = 4                             ! Number of transmitters
+  NRECV      = 4                             ! Number of receivers
+  DATASOURCE = "../../data/telecomm/g5satell_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  TRANSM = 1..NTRANSM                        ! Set of transmitters
+  RECV   = 1..NRECV                          ! Set of receivers
+
+  TRAF: array(TRANSM,RECV) of integer        ! Traffic between terrestrial stations
+  TQBS: array(TRANSM,RECV) of integer        ! Quasi bistochastic traffic matrix
+  row:  array(TRANSM) of integer             ! Row sums
+  col:  array(RECV)   of integer             ! Column sums
+  LB: integer                                ! Maximum of row and column sums
+ end-declarations
+
+ initializations from DATASOURCE
+  TRAF
+ end-initializations
+
+! Row and column sums
+ forall(t in TRANSM) row(t):= sum(r in RECV) TRAF(t,r)
+ forall(r in RECV)   col(r):= sum(t in TRANSM) TRAF(t,r)
+ LB:=maxlist(max(r in RECV) col(r), max(t in TRANSM) row(t))
+
+! Calculate TQBS
+ forall(t in TRANSM,r in RECV) do
+  q:= minlist(LB-row(t),LB-col(r))
+  TQBS(t,r):= TRAF(t,r)+q
+  row(t)+=q
+  col(r)+=q
+ end-do
+
+ declarations
+  MODES: range
+
+  flow: array(TRANSM,RECV) of mpvar          ! 1 if transmission from t to r
+  pmin: mpvar                                ! Minimum exchange
+  onerec, minexchg: array(TRANSM) of linctr ! Constraints on transmitters
+  onetrans: array(RECV) of linctr            ! Constraints on receivers
+
+  solflowt: array(TRANSM,MODES) of integer   ! Transmitter used in each mode
+  solflowr: array(RECV,MODES) of integer     ! Receiver used in each mode
+  solpmin:  array(MODES) of integer          ! Duration of each mode
+ end-declarations
+
+ forall(t in TRANSM,r in RECV) flow(t,r) is_binary
+
+ ct:= 0
+ while(sum(t in TRANSM,r in RECV) TQBS(t,r) > 0) do
+  ct+=1
+
+ ! One receiver per transmitter
+  forall(t in TRANSM) onerec(t):= sum(r in RECV | TQBS(t,r)>0) flow(t,r) = 1
+ ! One transmitter per receiver
+  forall(r in RECV) onetrans(r):= sum(t in TRANSM | TQBS(t,r)>0) flow(t,r) = 1
+ ! Minimum exchange
+  forall(t in TRANSM)
+   minexchg(t):= sum(r in RECV | TQBS(t,r)>0) TQBS(t,r)*flow(t,r) >= pmin
+
+ ! Solve the problem: maximize the minimum exchange
+  maximize(pmin)
+
+ ! Save the solution
+  solpmin(ct):= round(getobjval)
+  forall(t in TRANSM,r in RECV | TQBS(t,r)>0 and getsol(flow(t,r))>0) do
+   solflowt(t,ct):= t
+   solflowr(t,ct):= r
+  end-do
+
+ ! Update TQBS
+  forall(t in TRANSM)
+   TQBS(solflowt(t,ct),solflowr(t,ct)) -= solpmin(ct)
+
+ end-do
+
+ finalize(MODES)
+
+ declarations
+  TotalDuration: real                        ! Total schedule duration
+ end-declarations
+
+ TotalDuration := sum(m in MODES) solpmin(m)
+
+ initializations to OUTFILE
+  evaluation of TotalDuration as 'obj_val'
+  solpmin solflowt solflowr
+ end-initializations
+
+end-model

@@ -7,3 +7,6 @@ seaborn
 polars
 pyarrow
 networkx
+moselpy
+mosellibs
+xpresslibs

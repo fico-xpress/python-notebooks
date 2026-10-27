@@ -1,0 +1,11 @@
+! Data file for i3school_p.mos
+
+COURSE: [("Mr Cheese" 1)    1 1
+         ("Mrs Insulin" 1)  3 3
+         ("Mr Map" 1)       2 2
+         ("Mr Effofecks" 1) 0 4
+         ("Mrs Derivate" 1) 4 0
+         ("Mrs Electron" 1) 3 3
+         ("Mr Wise" 1)      1 1
+         ("Mr Muscle" 1)    1 0
+         ("Mrs Biceps" 1)   0 1]

@@ -1,0 +1,13 @@
+! Data file for a6electr_p.mos
+
+! Time periods
+LEN: [    6     3     3     2      4      4      2]
+DEM: [12000 32000 25000 36000  25000  30000  18000]
+
+! Power plants
+PMIN:   [ 750  1000  1200  1800]
+PMAX:   [1750  1500  2000  3500]
+CSTART: [5000  1600  2400  1200]
+CMIN:   [2250  1800  3750  4800]
+CADD:   [ 2.7   2.2   1.8   3.8]
+AVAIL:  [  10     4     8     3]

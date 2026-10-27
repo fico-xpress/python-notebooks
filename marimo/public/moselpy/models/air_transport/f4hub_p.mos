@@ -1,0 +1,98 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file f4hub_p.mos
+   ````````````````
+   Choosing hubs for transatlantic freight
+
+   An airline specializes in freight transportation linking
+   major cities in France with American cities. The average
+   freight quantities transported between each city is known.
+   Assume the transportation cost is proportional to the
+   distance between the cities. The airline is planning to
+   use two cities as hubs to reduce costs. The traffic between
+   cities assigned to one hub and the cities assigned to the
+   other hub is all routed through the single connection from
+   H1 to H2. The transport cost between the two hubs decreases
+   by 20%. Determine the two cities to be assigned as hubs in
+   order to minimize the total transportation costs.
+
+   This problem uses quadruple indices to represent the cost
+   of traveling from city i to j via hubs k and l. The formulation
+   of the mathematical model uses a large number of variables
+   for a relatively small problem.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "F-4 Hubs"
+ uses "mmxprs"
+
+ parameters
+  NCITIES    = 6                             ! Number of cities
+  NHUBS      = 2                             ! Number of hubs
+  DATASOURCE = "../../data/air_transport/f4hub_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  CITIES = 1..NCITIES                        ! Cities
+
+  COST: array(CITIES,CITIES,CITIES,CITIES) of real  ! (i,j,k,l) transport cost
+                                             ! from i to j via hubs k and l
+  QUANT: array(CITIES,CITIES) of integer     ! Quantity to transport
+  DIST:  array(CITIES,CITIES) of integer     ! Distance between cities
+  NAMES: array(CITIES) of string             ! City names
+  FACTOR: real                               ! Reduction of costs between hubs
+
+  flow: array(CITIES,CITIES,CITIES,CITIES) of mpvar  ! flow(i,j,k,l)=1 if
+                                             ! freight from i to j goes via k and l
+  hub:  array(CITIES) of mpvar              ! 1 if city is a hub, 0 otherwise
+ end-declarations
+
+ initializations from DATASOURCE
+  QUANT DIST NAMES FACTOR
+ end-initializations
+
+! Calculate costs
+ forall(i,j,k,l in CITIES)
+  COST(i,j,k,l):= DIST(i,k)+FACTOR*DIST(k,l)+DIST(l,j)
+
+! Objective: total transport cost
+ TotalCost:= sum(i,j,k,l in CITIES) QUANT(i,j)*COST(i,j,k,l)*flow(i,j,k,l)
+
+! Number of hubs
+ sum(i in CITIES) hub(i) = NHUBS
+
+! One hub-to-hub connection per freight transport
+ forall(i,j in CITIES) sum(k,l in CITIES) flow(i,j,k,l) = 1
+
+! Relation between flows and hubs
+ forall(i,j,k,l in CITIES) do
+  flow(i,j,k,l) <= hub(k)
+  flow(i,j,k,l) <= hub(l)
+ end-do
+
+ forall(i in CITIES) hub(i) is_binary
+ forall(i,j,k,l in CITIES) flow(i,j,k,l) is_binary
+
+! Solve the problem
+ minimize(TotalCost)
+
+ declarations
+  sol_hub: array(CITIES) of real             ! Hub assignments
+ end-declarations
+
+ forall(i in CITIES) sol_hub(i) := getsol(hub(i))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_hub
+  NAMES as 'sol_names'
+ end-initializations
+
+end-model

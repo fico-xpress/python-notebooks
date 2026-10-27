@@ -1,0 +1,7 @@
+! Data file for h1loan_p.mos
+
+PRICE: [(London) 2500000 (Munich) 1000000 (Rome) 1700000]
+
+RATE: [(1 London) 0.050 (1 Munich) 0.065 (1 Rome) 0.061
+       (2 London) 0.052 (2 Munich) 0.062 (2 Rome) 0.062
+       (3 London) 0.055 (3 Munich) 0.058 (3 Rome) 0.065]

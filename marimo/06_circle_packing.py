@@ -21,7 +21,7 @@ def _():
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Place $N$ disjoint circles in the unit square to maximize the sum of their radii. Circle packing problems of this kind have recently gained renewed visibility as a benchmark for AI-driven algorithm design, for example in Google DeepMind's AlphaEvolve project - see this [FICO blog post](https://marketplace.fico.com/blogs/best-global-optimization-solver) for how FICO Xpress compares against AlphaEvolve on this very problem.
+    Place $N$ disjoint circles in the unit square to maximize either the sum of their radii (a linear objective) or their total area (a quadratic objective). Circle packing problems of this kind have recently gained renewed visibility as a benchmark for AI-driven algorithm design, for example in Google DeepMind's AlphaEvolve project - see this [FICO blog post](https://marketplace.fico.com/blogs/best-global-optimization-solver) for how FICO Xpress compares against AlphaEvolve on this very problem.
 
     &copy; Copyright 2025-2026 Fair Isaac Corporation. The use of this example is subject to [legal and license requirements](https://github.com/fico-xpress/python-notebooks#legal-and-license-requirements).
     """)
@@ -46,13 +46,19 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    In this example, we aim at packing $N$ circles inside the unit square to maximize the sum of their radii. The circles must not overlap with each other and must be fully contained inside the unit square. Let $CIRCLES$ be the set $\{1,...,N\}$.
+    In this example, we aim at packing $N$ circles inside the unit square, with the choice of two alternative objectives. The circles must not overlap with each other and must be fully contained inside the unit square. Let $CIRCLES$ be the set $\{1,...,N\}$.
 
     The continuous decision variables $x_i$ and $y_i$ represent the vector of $(x,y)$ coordinates of the center point of each circle $i \in CIRCLES$, and variables $r_i$ the corresponding radius.
 
-    The goal is to maximize the sum of the radii of all circles:
+    The goal is to maximize either the sum of the radii of all circles (linear objective):
 
     $$\max \sum_{i \in CIRCLES} r_{i}$$
+
+    or the total area covered by all circles (quadratic objective):
+
+    $$\max \sum_{i \in CIRCLES} \pi r_{i}^2$$
+
+    Both objectives are available in this notebook and can be selected with the toggle next to the plot below. Whichever one is optimized, both metrics are always reported for the resulting packing.
 
     The circles must not overlap, that is, the Euclidean distance between the center of any two circles must not be shorter than the sum of their radii. This can be represented by the following set of quadratic constraints:
 
@@ -89,28 +95,36 @@ def _(mo):
     mo.md(r"""
     The model described above is implemented below with the Xpress Python API. Note that the upper bound is defined on variable creation with [p.addVariables](https://www.fico.com/fico-xpress-optimization/docs/latest/solver/optimizer/python/HTML/problem.addVariables.html), which creates a *NumPy* array of $N$ variables when an integer is passed as the first argument.
 
-    Use the slider below to change the number of circles $N$ and re-run the model.
+    The number of circles $N$ and the objective are controlled by the slider and the toggle shown right above the plot in the Visualization section below; changing either re-runs the model.
     """)
     return
 
 
 @app.cell
 def _():
+    import math
     import xpress as xp
     import matplotlib.pyplot as plt
 
-    return plt, xp
+    return math, plt, xp
 
 
 @app.cell
 def _(mo):
     n_slider = mo.ui.slider(2, 14, value=6, label="Number of circles N", show_value=True)
-    n_slider
-    return (n_slider,)
+    objective_radio = mo.ui.radio(
+        options={
+            "Maximize sum of radii (linear)": "radii",
+            "Maximize total area (quadratic)": "area",
+        },
+        value="Maximize sum of radii (linear)",
+        label="Objective",
+    )
+    return n_slider, objective_radio
 
 
 @app.cell
-def _(mo, n_slider, xp):
+def _(math, mo, n_slider, objective_radio, xp):
     N = n_slider.value   # Number of circles to place.
     CIRCLES = range(N)
 
@@ -131,8 +145,11 @@ def _(mo, n_slider, xp):
     p.addConstraint(y[i] >= r[i] for i in CIRCLES)
     p.addConstraint(y[i] <= 1 - r[i] for i in CIRCLES)
 
-    # Objective function.
-    p.setObjective(xp.Sum(r), sense=xp.ObjSense.MAXIMIZE)
+    # Objective function: sum of radii (linear) or total area of the circles (quadratic).
+    if objective_radio.value == "radii":
+        p.setObjective(xp.Sum(r), sense=xp.ObjSense.MAXIMIZE)
+    else:
+        p.setObjective(math.pi * xp.Sum(r[i]**2 for i in CIRCLES), sense=xp.ObjSense.MAXIMIZE)
     mo.show_code()
     return CIRCLES, N, p, r, x, y
 
@@ -150,7 +167,7 @@ def _(mo):
 
 
 @app.cell
-def _(CIRCLES, N, mo, p, r, x, xp, y):
+def _(CIRCLES, N, math, mo, objective_radio, p, r, x, xp, y):
     # Control parameters.
     p.controls.feastol = 1e-9               # Set the feasibility tolerance to a very small value.
     p.controls.timelimit = 3                # Set a time limit in seconds.
@@ -163,12 +180,16 @@ def _(CIRCLES, N, mo, p, r, x, xp, y):
     xsol = p.getSolution(x)
     ysol = p.getSolution(y)
     rsol = p.getSolution(r)
+    sum_radii = float(sum(rsol))
+    total_area = float(math.pi * sum(_r**2 for _r in rsol))
     with mo.capture_stdout() as _buffer:
-        print(f"Sum of radii for N = {N} is {p.attributes.objval}")
+        print(f"N = {N}, objective: {objective_radio.value}")
+        print(f"Sum of radii = {sum_radii}")
+        print(f"Total area = {total_area}")
         for i in CIRCLES:
             print(f"{i}: x = {xsol[i]}, y = {ysol[i]}, r = {rsol[i]}")
     mo.show_code(mo.plain_text(_buffer.getvalue()), position="above")
-    return rsol, xsol, ysol
+    return rsol, sum_radii, total_area, xsol, ysol
 
 
 @app.cell(hide_code=True)
@@ -182,13 +203,19 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    The plot below shows the circles defined by the solution inside the unit square, with a blue line and label indicating the radius of each circle.
+    The plot below shows the circles defined by the solution inside the unit square, with a blue line and label indicating the radius of each circle. Use the controls above the plot to change the number of circles $N$ and to switch between maximizing the sum of radii and maximizing the total area.
     """)
     return
 
 
 @app.cell
-def _(plt, rsol, xsol, ysol):
+def _(mo, n_slider, objective_radio):
+    mo.hstack([n_slider, objective_radio], justify="start", gap=2)
+    return
+
+
+@app.cell
+def _(N, plt, rsol, sum_radii, total_area, xsol, ysol):
     # Create a plot
     fig, ax = plt.subplots()
 
@@ -209,6 +236,7 @@ def _(plt, rsol, xsol, ysol):
     ax.set_ylim(0, 1)
     ax.set_aspect('equal', 'box')
     ax.grid(True)
+    ax.set_title(f"N = {N}, sum of radii = {sum_radii:.4f}, total area = {total_area:.4f}")
     fig
     return
 

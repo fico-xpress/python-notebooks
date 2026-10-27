@@ -1,0 +1,95 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file f3landing_p.mos
+   ````````````````````
+   Schedule plane landings
+
+   Ten planes are scheduled to arrive at a large airport.
+   Each plane has an earliest and latest arrival time. Within
+   this time window, there is a target arrival time. Penalties
+   are assigned to each minute a flight is early or late. Between
+   each landing, there is a required security time interval.
+   Which schedule minimizes the total arrival penalty given the
+   arrival time windows and required separating intervals?
+
+   This problem calculates a specific BigM per index tuple for use
+   in the formulation of the disjunctive constraints on landing times.
+   Note that the obvious pair of 'START' and 'END' for the time
+   windows cannot be used because 'END' is a reserved word in Mosel.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "F-3 Landing schedule"
+ uses "mmxprs"
+
+ parameters
+  NPLANES    = 10                            ! Number of planes
+  DATASOURCE = "../../data/air_transport/f3landing_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  PLANES = 1..NPLANES                        ! Set of airplanes
+
+  START, STOP: array(PLANES) of integer      ! Start, end of arrival time windows
+  TARGET:      array(PLANES) of integer      ! Planned arrival times
+  CEARLY, CLATE: array(PLANES) of integer    ! Cost of earliness/lateness
+  DIST:  array(PLANES,PLANES) of integer     ! Minimum interval between planes
+  M:     array(PLANES,PLANES) of integer     ! Sufficiently large positive values
+
+  prec:  array(PLANES,PLANES) of mpvar       ! 1 if plane i precedes j
+  land:  array(PLANES) of mpvar              ! Arrival time
+  early, late: array(PLANES) of mpvar        ! Earliness/lateness
+ end-declarations
+
+ initializations from DATASOURCE
+  START STOP TARGET CEARLY CLATE DIST
+ end-initializations
+
+ forall(p,q in PLANES) M(p,q):= STOP(p) + DIST(p,q) - START(q)
+
+! Objective: total penalty for deviations from planned arrival times
+ Cost:= sum(p in PLANES) (CEARLY(p)*early(p) + CLATE(p)*late(p))
+
+! Keep required intervals between plane arrivals
+ forall(p,q in PLANES | p>q)
+  land(p) + DIST(p,q) <= land(q) + M(p,q)*prec(q,p)
+ forall(p,q in PLANES | p<q)
+  land(p) + DIST(p,q) <= land(q) + M(p,q)*(1-prec(p,q))
+
+! Relations between earliness, lateness, and effective arrival time
+ forall(p in PLANES) do
+  early(p) >= TARGET(p) - land(p)
+  late(p)  >= land(p) - TARGET(p)
+  land(p)  = TARGET(p) - early(p) + late(p)
+ end-do
+
+ forall(p in PLANES) do
+  START(p) <= land(p); land(p) <= STOP(p)
+  early(p) <= TARGET(p)-START(p)
+  late(p)  <= STOP(p)-TARGET(p)
+ end-do
+
+ forall(p,q in PLANES | p<q) prec(p,q) is_binary
+
+! Solve the problem
+ minimize(Cost)
+
+ declarations
+  sol_land: array(PLANES) of real            ! Actual arrival times
+ end-declarations
+
+ forall(p in PLANES) sol_land(p) := getsol(land(p))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_land TARGET START STOP
+ end-initializations
+
+end-model

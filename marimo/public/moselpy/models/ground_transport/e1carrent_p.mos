@@ -1,0 +1,95 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file e1carrent_p.mos
+   ````````````````````
+   Fleet management: minimizing rental and transfer costs
+
+   Cars are rented at various locations and must be
+   redistributed to satisfy demand. Agents with excess
+   cars transfer them to agents that need them. The
+   transfer cost depends on the Euclidean distance
+   between locations.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "E-1 Car rental fleet management"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/ground_transport/e1carrent_p.dat"
+  OUTFILE    = ""
+  COST       = 0.5    ! Cost per unit distance
+ end-parameters
+
+ declarations
+  AGENTS: range                         ! Set of agents (rental locations)
+
+  REQ:   array(AGENTS) of integer       ! Car requirements per agent
+  STOCK: array(AGENTS) of integer       ! Cars in stock per agent
+  X:     array(AGENTS) of real          ! x-coordinates of locations
+  Y:     array(AGENTS) of real          ! y-coordinates of locations
+
+  NEED:   set of integer                ! Agents needing cars
+  EXCESS: set of integer                ! Agents with excess cars
+ end-declarations
+
+ initializations from DATASOURCE
+  REQ STOCK X Y
+ end-initializations
+
+! Compute sets of agents with excess supply or unmet demand
+ forall(a in AGENTS) do
+  if REQ(a) > STOCK(a) then
+   NEED += {a}
+  elif STOCK(a) > REQ(a) then
+   EXCESS += {a}
+  end-if
+ end-do
+
+ finalize(NEED)
+ finalize(EXCESS)
+
+ declarations
+  DIST: array(EXCESS,NEED) of real      ! Transfer distances between locations
+
+  move: array(EXCESS,NEED) of mpvar     ! Cars moved from excess to need location
+
+  sol_move: dynamic array(EXCESS,NEED) of real  ! Solution: cars transferred
+ end-declarations
+
+! Compute transfer distances
+ forall(e in EXCESS, n in NEED)
+  DIST(e,n):= 1.3*sqrt((X(e)-X(n))^2 + (Y(e)-Y(n))^2)
+
+! Objective: total transfer cost
+ Cost:= sum(e in EXCESS, n in NEED) COST*DIST(e,n)*move(e,n)
+
+! Each needing agent receives enough cars
+ forall(n in NEED)
+  sum(e in EXCESS) move(e,n) >= REQ(n) - STOCK(n)
+
+! Each excess agent sends out at most its surplus
+ forall(e in EXCESS)
+  sum(n in NEED) move(e,n) <= STOCK(e) - REQ(e)
+
+! Solve the problem
+ minimize(Cost)
+
+! Collect solution
+ forall(e in EXCESS, n in NEED) do
+  create(sol_move(e,n))
+  sol_move(e,n) := getsol(move(e,n))
+ end-do
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_move
+ end-initializations
+
+end-model

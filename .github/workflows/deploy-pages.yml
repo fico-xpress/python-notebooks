@@ -25,7 +25,7 @@ jobs:
           python-version: "3.13"
 
       - name: Install dependencies
-        run: pip install "marimo>=0.23.0" xpress numpy matplotlib pandas seaborn polars pyarrow networkx
+        run: pip install "marimo>=0.23.0" xpress numpy matplotlib pandas seaborn polars pyarrow networkx moselpy mosellibs xpresslibs
 
       - name: Export notebooks to HTML
         run: |
@@ -84,6 +84,17 @@ jobs:
               <li><a href="07_unitcommitment_indicators.html">Electricity generation unit commitment</a></li>
               <li><a href="08_markowitz_multiobj.html">Markowitz portfolio multi-objective optimization</a></li>
               <li><a href="09_tsp_callbacks.html">Solving a TSP problem using callbacks</a></li>
+              <li><a href="moselpy_intro.html">MoselPy: Introduction</a></li>
+              <li><a href="moselpy_mining_process.html">MoselPy: Mining and process industries</a></li>
+              <li><a href="moselpy_scheduling_sequencing.html">MoselPy: Scheduling and sequencing</a></li>
+              <li><a href="moselpy_production_planning.html">MoselPy: Production planning</a></li>
+              <li><a href="moselpy_loading_cutting_stock.html">MoselPy: Loading and cutting stock</a></li>
+              <li><a href="moselpy_ground_transport.html">MoselPy: Ground transport</a></li>
+              <li><a href="moselpy_air_transport.html">MoselPy: Air transport</a></li>
+              <li><a href="moselpy_telecomm.html">MoselPy: Telecommunications</a></li>
+              <li><a href="moselpy_economics_finance.html">MoselPy: Economics and finance</a></li>
+              <li><a href="moselpy_timetabling_personnel.html">MoselPy: Timetabling and personnel</a></li>
+              <li><a href="moselpy_public_services.html">MoselPy: Public services and utilities</a></li>
             </ul>
           </body>
           </html>

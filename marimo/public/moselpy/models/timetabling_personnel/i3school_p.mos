@@ -1,0 +1,97 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file i3school_p.mos
+   ```````````````````
+   Determine a timetable for 2 classes
+
+   A weekly timetable for two classes must be determined.
+   The classes share the same teachers, except for mathematics
+   and sport. The duration of a lesson, slots to schedule
+   courses, and specific day/slot requirements are given.
+   All students of a course attend the same sessions.
+   The model minimizes the number of 'holes' in timetables,
+   formulated as the number of courses scheduled in the first
+   or last time slot of a day.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "I-3 School timetable"
+ uses "mmxprs"
+
+ parameters
+  NCLASS     = 2                             ! Number of classes
+  NP         = 4                             ! Number of time periods per day
+  ND         = 5                             ! Days per week
+  DATASOURCE = "../../data/timetabling_personnel/i3school_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  TEACHERS: set of string                    ! Set of teachers (auto-populated)
+  CLASS = 1..NCLASS                          ! Set of classes
+  SLOTS = 1..NP*ND                           ! Set of time slots for the week
+
+  COURSE: array(TEACHERS,CLASS) of integer   ! Lessons per teacher and class
+
+  teach: array(TEACHERS,CLASS,SLOTS) of mpvar ! 1 if teacher gives class in slot
+ end-declarations
+
+ initializations from DATASOURCE
+  COURSE
+ end-initializations
+
+! Objective: number of 'holes' (courses at start or end of day)
+ Hole:=
+  sum(t in TEACHERS, c in CLASS, d in 0..ND-1) (teach(t,c,d*NP+1) +
+      teach(t,c,(d+1)*NP))
+
+! Plan all courses
+ forall(t in TEACHERS, c in CLASS) sum(l in SLOTS) teach(t,c,l) = COURSE(t,c)
+
+! For every class, one course at a time
+ forall(c in CLASS, l in SLOTS) sum(t in TEACHERS) teach(t,c,l) <= 1
+
+! Teacher teaches one course at a time
+ forall(t in TEACHERS, l in SLOTS) sum(c in CLASS) teach(t,c,l) <= 1
+
+! Every subject only once per day
+ forall(t in TEACHERS, c in CLASS, d in 0..ND-1)
+  sum(l in d*NP+1..(d+1)*NP) teach(t,c,l) <= 1
+
+! Sport Thursday afternoon (slot 15)
+ teach("Mr Muscle",1,15) = 1
+ teach("Mrs Biceps",2,15) = 1
+
+! No course during first period of Monday morning
+ forall(t in TEACHERS, c in CLASS) teach(t,c,1) = 0
+
+! No course by Mr Effofecks Monday morning
+ forall(l in 1..2) teach("Mr Effofecks",2,l) = 0
+
+! No Biology on Wednesday
+ forall(c in CLASS, l in 2*NP+1..3*NP) teach("Mrs Insulin",c,l) = 0
+
+ forall(t in TEACHERS, c in CLASS, l in SLOTS) teach(t,c,l) is_binary
+
+! Solve the problem
+ minimize(Hole)
+
+ declarations
+  sol_teach: array(TEACHERS,CLASS,SLOTS) of real ! Timetable solution
+ end-declarations
+
+ forall(t in TEACHERS, c in CLASS, l in SLOTS)
+  sol_teach(t,c,l) := getsol(teach(t,c,l))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_teach
+ end-initializations
+
+end-model

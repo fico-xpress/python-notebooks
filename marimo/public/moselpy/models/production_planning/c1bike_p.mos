@@ -1,0 +1,86 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file c1bike_p.mos
+   `````````````````
+   Planning the production of bicycles
+
+   A sales forecast shows the predicted bicycle demand for the
+   upcoming year. There is a set production capacity per month
+   but it can be increased with overtime (with additional costs).
+   The company can store excess bikes at a small cost with no
+   limit to quantity. How many bikes need to be produced and
+   stored in the next year to meet the forecasted demand while
+   minimizing total (production, overtime, storage) cost?
+
+   This implementation uses the inline 'if' function to condense
+   the balance constraints since this varies for t=1 and t>1.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "C-1 Bicycle production"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/production_planning/c1bike_p.dat"
+  OUTFILE    = ""
+  NT         = 12    ! Number of time periods (months)
+ end-parameters
+
+ declarations
+  TIMES = 1..NT                  ! Range of time periods
+
+  DEM: array(TIMES) of integer   ! Demand per month
+  CNORM,COVER: integer           ! Prod. cost in normal / overtime hours
+  CSTOCK: integer                ! Storage cost per bicycle
+  CAP: integer                   ! Monthly capacity in normal working hours
+  ISTOCK: integer                ! Initial stock
+  MONTHS: array(TIMES) of string ! Names of months
+
+  pnorm: array(TIMES) of mpvar   ! No. of bicycles produced in normal hours
+  pover: array(TIMES) of mpvar   ! No. of bicycles produced in overtime hours
+  store: array(TIMES) of mpvar   ! No. of bicycles stored per month
+
+  sol_pnorm: array(TIMES) of real ! Solution: normal production
+  sol_pover: array(TIMES) of real ! Solution: overtime production
+  sol_store: array(TIMES) of real ! Solution: stock levels
+ end-declarations
+
+ initializations from DATASOURCE
+  DEM CNORM COVER CSTOCK CAP ISTOCK MONTHS
+ end-initializations
+
+! Objective: minimize production cost
+ Cost:= sum(t in TIMES) (CNORM*pnorm(t) + COVER*pover(t) + CSTOCK*store(t))
+
+! Satisfy the demand for every period
+ forall(t in TIMES)
+  pnorm(t) + pover(t) + if(t>1, store(t-1), ISTOCK) = DEM(t) + store(t)
+
+! Capacity limits on normal and overtime working hours per month
+ forall(t in TIMES) do
+  pnorm(t) <= CAP
+  pover(t) <= 0.5*CAP
+ end-do
+
+! Solve the problem
+ minimize(Cost)
+
+! Collect solution arrays
+ forall(t in TIMES) sol_pnorm(t) := getsol(pnorm(t))
+ forall(t in TIMES) sol_pover(t) := getsol(pover(t))
+ forall(t in TIMES) sol_store(t) := getsol(store(t))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_pnorm
+  sol_pover
+  sol_store
+ end-initializations
+
+end-model

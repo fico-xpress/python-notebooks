@@ -1,0 +1,14 @@
+! Data file for h6expand_p.mos
+
+COST: [1.80  2.40  2.40  1.80  1.50
+       1.20  1.80  2.40  0.60  0.50
+       1.20  1.00  0     0.48  0
+       1.40  1.40  1.20  1.20  1.20
+       1.60  2.10  2.50  2.00  1.80]
+
+RET: [10.8  4.8  3.2  4.44  12.25]
+
+CAP: [4.8  6.0  4.8  4.2  3.5]
+
+DESCR: ["Expand assembly line" "Reorganize shop" "New painting facility"
+        "Concept car" "Reorganize logistics"]

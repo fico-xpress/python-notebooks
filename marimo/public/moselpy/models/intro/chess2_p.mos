@@ -1,0 +1,58 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file chess2_p.mos
+   ```````````````
+   Production of chess boards
+
+   A small company manufactures two different sizes of boxwood
+   chess sets. The small set requires 3 lathehours and 1 kg
+   of boxwood. The large set requires 2 lathehours and 3 kg
+   of boxwood. There are 160 lathe-hours and 200 kg available
+   per week. Each large (resp. small) chess set produced and
+   sold yields a profit of $20 (resp. $5). How many sets of
+   each kind should be made each week to maximize total profit?
+
+   Analyzing the problem solution further, 'getact' returns
+   the constraint activities, 'getdual' their dual values
+   (shadow prices), and 'getrcost' returns the reduced costs
+   of the decision variables.
+
+   - for use with MoselPy -
+
+   (c) 2008 Fair Isaac Corporation
+       author: R.C. Daniel, Jul. 2002, rev. 2026
+*******************************************************!)
+
+model "Chess 2"
+ uses "mmxprs"
+
+
+ parameters
+  OUTFILE = ""
+ end-parameters
+
+ declarations
+  xs, xl: mpvar
+ end-declarations
+
+ Profit:=  5*xs + 20*xl
+ Boxwood:= 1*xs + 3*xl <=  200
+ Lathe:=   3*xs + 2*xl <=  160
+
+ maximize(Profit)
+
+ initializations to OUTFILE
+  evaluation of getsol(xs)      as 'sol_xs'
+  evaluation of getsol(xl)      as 'sol_xl'
+  evaluation of getobjval       as 'obj_val'
+  evaluation of getact(Lathe)   as 'act_lathe'
+  evaluation of getact(Boxwood) as 'act_boxwood'
+  evaluation of getdual(Lathe)   as 'dual_lathe'
+  evaluation of getdual(Boxwood) as 'dual_boxwood'
+  evaluation of getrcost(xs)    as 'rc_xs'
+  evaluation of getrcost(xl)    as 'rc_xl'
+ end-initializations
+
+end-model

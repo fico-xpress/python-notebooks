@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <clipPath id="card">
+      <rect x="48" y="48" width="1104" height="534" rx="24" />
+    </clipPath>
+  </defs>
+
+  <rect width="1200" height="630" fill="#edf4fb"/>
+  <rect x="48" y="48" width="1104" height="534" rx="24" fill="#ffffff" stroke="#dbe5ef" stroke-width="2"/>
+  <rect x="48" y="48" width="16" height="534" fill="#0a6de6" clip-path="url(#card)"/>
+
+  <!-- Antenna icon: mast with radiating signal arcs -->
+  <g stroke="#123554" stroke-width="5" fill="none" stroke-linecap="round">
+    <path d="M 600 300 L 560 430"/>
+    <path d="M 600 300 L 640 430"/>
+    <path d="M 575 380 L 625 380"/>
+  </g>
+  <circle cx="600" cy="285" r="16" fill="#123554"/>
+  <g stroke="#0a6de6" stroke-width="4" fill="none" stroke-linecap="round">
+    <path d="M 552 237 A 68 68 0 0 0 552 333"/>
+    <path d="M 648 237 A 68 68 0 0 1 648 333"/>
+    <path d="M 520 205 A 112 112 0 0 0 520 365"/>
+    <path d="M 680 205 A 112 112 0 0 1 680 365"/>
+  </g>
+
+</svg>

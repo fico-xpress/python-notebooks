@@ -1,0 +1,7 @@
+! Data file for h3portf_p.mos
+
+RET: [5.3 6.2 5.1 4.9 6.5 3.4]
+
+EU: [2 3 5 6]
+
+TECHNOLOGY: [1 2 3]

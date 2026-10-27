@@ -1,0 +1,6 @@
+! Data file for `burglar_p.mos'
+
+VALUE: [("camera") 15 ("necklace") 100 ("vase") 90 ("picture") 60
+         ("tv") 40 ("video") 15 ("chest") 10 ("brick") 1]
+WEIGHT:[("camera") 2 ("necklace") 20 ("vase") 20 ("picture") 30
+         ("tv") 40 ("video") 30 ("chest") 60 ("brick") 10]

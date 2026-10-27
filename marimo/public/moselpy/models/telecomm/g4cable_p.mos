@@ -1,0 +1,81 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file g4cable_p.mos
+   ``````````````````
+   Connecting terminals through cables
+
+   A university wants to connect 6 terminals located in
+   different campus buildings. These terminals will be
+   connected via underground cables. The connection cost
+   is proportional to the distance between the terminals.
+   Which connections should be installed to minimize total
+   cost?
+
+   Simple constraints defining the number of total connections
+   and that each terminal must be connected to another terminal
+   could result in a sub-cycle. Each node is assigned a level
+   value that is used in additional constraints to exclude
+   the creation of sub-cycles. This enforces a spanning tree
+   structure rooted at node 1.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Apr. 2002, rev. 2026
+*******************************************************!)
+
+model "G-4 Cabled network"
+ uses "mmxprs"
+
+ parameters
+  NTERM      = 6                             ! Number of terminals
+  DATASOURCE = "../../data/telecomm/g4cable_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  TERMINALS = 1..NTERM                       ! Set of terminals to connect
+
+  DIST: array(TERMINALS,TERMINALS) of integer ! Distance between terminals
+
+  ifconnect: array(TERMINALS,TERMINALS) of mpvar ! 1 if direct connection
+                                             ! between terminals, 0 otherwise
+  level: array(TERMINALS) of mpvar           ! Level value of nodes
+ end-declarations
+
+ initializations from DATASOURCE
+  DIST
+ end-initializations
+
+! Objective: length of cable used
+ Length:= sum(s,t in TERMINALS | s<>t) DIST(s,t)*ifconnect(s,t)
+
+! Number of connections
+ sum(s,t in TERMINALS | s<>t) ifconnect(s,t) = NTERM - 1
+
+! Avoid sub-cycle
+ forall(s,t in TERMINALS | s<>t)
+  level(t) >= level(s) + 1 - NTERM + NTERM*ifconnect(s,t)
+
+! Direct all connections towards the root (node 1)
+ forall(s in 2..NTERM) sum(t in TERMINALS | s<>t) ifconnect(s,t) = 1
+
+ forall(s,t in TERMINALS | s<>t) ifconnect(s,t) is_binary
+
+! Solve the problem
+ minimize(Length)
+
+ declarations
+  sol_ifconnect: array(TERMINALS,TERMINALS) of real ! Connection matrix
+ end-declarations
+
+ forall(s,t in TERMINALS | s<>t) sol_ifconnect(s,t) := getsol(ifconnect(s,t))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_ifconnect
+ end-initializations
+
+end-model

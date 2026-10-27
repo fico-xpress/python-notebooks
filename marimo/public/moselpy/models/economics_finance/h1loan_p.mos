@@ -1,0 +1,79 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file h1loan_p.mos
+   `````````````````
+   Choice of loans
+
+   A chain of shops aims to open three new shops located in
+   different cities. An associated opening cost with each
+   shop is given. To finance this project, the company can
+   get loans from three different banks which offer a maximum
+   loan amount and different rates for the different shop
+   projects. To minimize the company's total cost, how much
+   money should be borrowed from each bank to finance
+   each shop?
+
+   This LP model minimizes the sum of annual interest payments
+   that the company must make. A set of constraints ensures that
+   the borrowed amount for each shop equals its opening cost.
+   Another set of constraints guarantees, for each bank, that
+   the company borrows at most the maximum loan amount offered.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "H-1 Loan choice"
+ uses "mmxprs"
+
+ parameters
+  NBANKS     = 3                             ! Number of banks
+  DUR        = 8                             ! Duration of loans (years)
+  VMAX       = 3000000                       ! Maximum loan volume per bank
+  DATASOURCE = "../../data/economics_finance/h1loan_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  BANKS = 1..NBANKS                          ! Set of banks
+  SHOPS: set of string                       ! Set of shops (auto-populated)
+
+  PRICE: array(SHOPS) of integer             ! Price of shops
+  RATE:  array(BANKS,SHOPS) of real          ! Interest rates offered by banks
+
+  borrow: array(BANKS,SHOPS) of mpvar        ! Loan taken from banks per project
+ end-declarations
+
+ initializations from DATASOURCE
+  PRICE RATE
+ end-initializations
+
+! Objective: interest payments
+ Interest:=
+  sum(b in BANKS, s in SHOPS) borrow(b,s)*RATE(b,s)/(1-(1+RATE(b,s))^(-DUR))
+
+! Finance all projects
+ forall(s in SHOPS) sum(b in BANKS) borrow(b,s) = PRICE(s)
+
+! Keep within maximum loan volume per bank
+ forall(b in BANKS) sum(s in SHOPS) borrow(b,s) <= VMAX
+
+! Solve the problem
+ minimize(Interest)
+
+ declarations
+  sol_borrow: array(BANKS,SHOPS) of real     ! Loan amounts per bank/shop
+ end-declarations
+
+ forall(b in BANKS, s in SHOPS) sol_borrow(b,s) := getsol(borrow(b,s))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_borrow
+ end-initializations
+
+end-model

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <clipPath id="card">
+      <rect x="48" y="48" width="1104" height="534" rx="24" />
+    </clipPath>
+  </defs>
+
+  <rect width="1200" height="630" fill="#edf4fb"/>
+  <rect x="48" y="48" width="1104" height="534" rx="24" fill="#ffffff" stroke="#dbe5ef" stroke-width="2"/>
+  <rect x="48" y="48" width="16" height="534" fill="#0a6de6" clip-path="url(#card)"/>
+
+  <!-- Opencast mine icon: terraced pit with ore blocks -->
+  <path d="M 520 270 L 560 270 L 580 310 L 620 310 L 640 270 L 680 270 L 700 230 L 500 230 Z" fill="#0a6de6" opacity="0.12"/>
+  <g stroke="#0a6de6" stroke-width="4" fill="none" stroke-linejoin="round">
+    <path d="M 440 230 L 500 230 L 520 270 L 560 270 L 580 310 L 620 310 L 640 270 L 680 270 L 700 230 L 760 230"/>
+  </g>
+  <g fill="#123554">
+    <rect x="585" y="345" width="30" height="30" rx="4"/>
+    <rect x="545" y="380" width="30" height="30" rx="4"/>
+    <rect x="625" y="380" width="30" height="30" rx="4"/>
+  </g>
+
+</svg>

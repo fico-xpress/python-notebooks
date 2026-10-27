@@ -1,0 +1,72 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file e6vanrent_p.mos
+   ````````````````````
+   Van rental: optimising short-term van hire contracts
+
+   A company needs vans for six months. Vans may be hired
+   on contracts of 3, 4, or 5 months duration, with longer
+   contracts being cheaper. An initial fleet is available.
+   The model minimizes total rental cost while meeting
+   monthly demand.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "E-6 Van rental"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/ground_transport/e6vanrent_p.dat"
+  OUTFILE    = ""
+  NM         = 6    ! Number of months
+  NINIT      = 200  ! Initial vans available on 3-month contracts
+ end-parameters
+
+ declarations
+  MONTHS = 1..NM                            ! Set of months
+  CONTR  = 3..5                             ! Contract durations (3, 4, 5 months)
+
+  REQ:   array(MONTHS) of integer           ! Van requirements per month
+  COST:  array(CONTR) of integer            ! Cost per van for each contract duration
+  NAMES: array(MONTHS) of string            ! Month names (for display)
+
+  rent:  array(CONTR,MONTHS) of mpvar       ! Vans rented on contract c starting in month m
+
+  sol_rent: array(CONTR,MONTHS) of real     ! Solution: rental quantities
+ end-declarations
+
+ initializations from DATASOURCE
+  REQ COST NAMES
+ end-initializations
+
+! Objective: total rental cost
+ TotalCost:= sum(c in CONTR, m in MONTHS) COST(c)*rent(c,m)
+
+! Meet monthly demand
+ forall(m in MONTHS)
+  if(m<=2, NINIT, 0) + sum(c in CONTR, s in maxlist(1,m-c+1)..minlist(m,NM-c+1)) rent(c,s) >= REQ(m)
+
+ forall(c in CONTR, m in MONTHS) rent(c,m) >= 0
+ forall(c in CONTR, m in MONTHS) rent(c,m) is_integer
+
+! Ensure vans rented cannot end beyond the planning horizon
+ forall(c in CONTR, m in MONTHS | m+c-1 > NM) rent(c,m) = 0
+
+! Solve the problem
+ minimize(TotalCost)
+
+! Collect solution
+ forall(c in CONTR, m in MONTHS) sol_rent(c,m) := getsol(rent(c,m))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_rent
+ end-initializations
+
+end-model

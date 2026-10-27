@@ -1,0 +1,100 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file h6expand_p.mos
+   ```````````````````
+   Planning the expansion of a company
+
+   A company aims to expand and has a series of candidate
+   projects for a planning horizon of five years. Every
+   project has an annual cost and expected benefit after
+   five years. The forecast annual costs of the projects
+   for the next five years as well as the available yearly
+   funds are known. Which project(s) should the company
+   choose now to maximize the total benefit after five years?
+
+   A simple IP model with binary decision variables is
+   implemented. The model first solves the problem as an
+   LP (using XPRS_LIN), then as the full MIP.
+   If FORCED is set to a project index 1..NPROJECTS, that
+   project is forced into the solution for a third solve.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "H-6 Expansion"
+ uses "mmxprs"
+
+ parameters
+  NPROJECTS  = 5                             ! Number of candidate projects
+  NTIME      = 5                             ! Length of planning horizon
+  FORCED     = 1                             ! 0 = no forcing; 1..NPROJECTS forces that project
+  DATASOURCE = "../../data/economics_finance/h6expand_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  PROJECTS = 1..NPROJECTS                    ! Set of possible projects
+  TIME     = 1..NTIME                        ! Planning period
+
+  COST:  array(PROJECTS,TIME) of real        ! Annual costs of projects
+  CAP:   array(TIME) of real                 ! Annually available capital
+  RET:   array(PROJECTS) of real             ! Estimated profits
+  DESCR: array(PROJECTS) of string           ! Description of projects
+
+  choose: array(PROJECTS) of mpvar           ! 1 if project is chosen, 0 otherwise
+ end-declarations
+
+ initializations from DATASOURCE
+  COST CAP RET DESCR
+ end-initializations
+
+! Objective: total profit
+ Profit:= sum(p in PROJECTS) RET(p)*choose(p)
+
+! Limit on capital availability
+ forall(t in TIME) sum(p in PROJECTS) COST(p,t)*choose(p) <= CAP(t)
+
+ forall(p in PROJECTS) choose(p) is_binary
+
+ declarations
+  lp_sol:  array(PROJECTS) of real           ! LP relaxation solution
+  mip_sol: array(PROJECTS) of real           ! MIP solution
+  lp_val:  real                              ! LP relaxation objective
+  mip_val: real                              ! MIP objective
+ end-declarations
+
+! Solve problem as an LP, ignoring any MIP information
+ maximize(XPRS_LIN, Profit)
+ lp_val := getobjval
+ forall(p in PROJECTS) lp_sol(p) := getsol(choose(p))
+
+! Solve full MIP
+ maximize(Profit)
+ mip_val := getobjval
+ forall(p in PROJECTS) mip_sol(p) := getsol(choose(p))
+
+! Optionally force a specific project
+ if FORCED > 0 then
+  choose(FORCED) = 1
+  maximize(Profit)
+ end-if
+
+ declarations
+  sol_choose: array(PROJECTS) of real        ! Final solution
+ end-declarations
+
+ forall(p in PROJECTS) sol_choose(p) := getsol(choose(p))
+
+ initializations to OUTFILE
+  evaluation of lp_val  as 'obj_lp'
+  evaluation of mip_val as 'obj_mip'
+  evaluation of getobjval as 'obj_val'
+  lp_sol mip_sol sol_choose
+ end-initializations
+
+end-model

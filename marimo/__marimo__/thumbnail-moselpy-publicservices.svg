@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <clipPath id="card">
+      <rect x="48" y="48" width="1104" height="534" rx="24" />
+    </clipPath>
+  </defs>
+
+  <rect width="1200" height="630" fill="#edf4fb"/>
+  <rect x="48" y="48" width="1104" height="534" rx="24" fill="#ffffff" stroke="#dbe5ef" stroke-width="2"/>
+  <rect x="48" y="48" width="16" height="534" fill="#0a6de6" clip-path="url(#card)"/>
+
+  <!-- Public building icon: pediment, columns and steps -->
+  <path d="M 450 270 L 600 200 L 750 270 Z" fill="#0a6de6" opacity="0.12"/>
+  <g stroke="#0a6de6" stroke-width="4" fill="none" stroke-linejoin="round">
+    <path d="M 450 270 L 600 200 L 750 270 Z"/>
+    <rect x="450" y="395" width="300" height="24" rx="4"/>
+    <rect x="430" y="419" width="340" height="24" rx="4"/>
+  </g>
+  <g fill="#123554">
+    <rect x="475" y="285" width="30" height="100" rx="4"/>
+    <rect x="545" y="285" width="30" height="100" rx="4"/>
+    <rect x="625" y="285" width="30" height="100" rx="4"/>
+    <rect x="695" y="285" width="30" height="100" rx="4"/>
+  </g>
+
+</svg>

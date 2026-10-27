@@ -1,0 +1,111 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file f4hub2_p.mos
+   `````````````````
+   Choosing hubs for transatlantic freight
+   (second, improved formulation)
+
+   An airline links French cities with American cities. The
+   airline uses two cities as hubs to reduce costs. Traffic
+   between cities assigned to one hub and cities assigned to
+   the other hub is routed through the hub-to-hub connection
+   (with a 20% cost discount).
+
+   Due to the geography, one hub will be in the US (cities 1-3)
+   and one in Europe (cities 4-6). The revised formulation uses
+   a dynamic array for 'flow' so that only valid routes are
+   created: same-continent pairs share the same hub, while
+   cross-continent pairs use one US and one EU hub. This
+   reduces the number of variables significantly.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Jul. 2002, rev. 2026
+*******************************************************!)
+
+model "F-4 Hubs (2)"
+ uses "mmxprs"
+
+ parameters
+  NUS        = 3                             ! Number of US cities
+  NEU        = 3                             ! Number of EU cities
+  NHUBS      = 2                             ! Number of hubs
+  DATASOURCE = "../../data/air_transport/f4hub_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ forward function calccost(i,j,k,l:integer):real
+
+ declarations
+  US     = 1..NUS                            ! US cities
+  EU     = NUS+1..NUS+NEU                    ! EU cities
+  CITIES = US + EU                           ! All cities
+
+  QUANT: array(CITIES,CITIES) of integer     ! Freight quantity between cities
+  DIST:  array(CITIES,CITIES) of integer     ! Distance between cities
+  FACTOR: real                               ! Hub-to-hub cost reduction factor
+  NAMES: array(CITIES) of string             ! City names
+
+  flow: dynamic array(CITIES,CITIES,CITIES,CITIES) of mpvar ! flow(i,j,k,l)=1
+                                             ! if freight from i to j goes via k and l
+  hub: array(CITIES) of mpvar               ! 1 if city is a hub, 0 otherwise
+ end-declarations
+
+ initializations from DATASOURCE
+  QUANT DIST FACTOR NAMES
+ end-initializations
+
+! Symmetrize quantities (combine both directions)
+ forall(i,j in CITIES | i<j) QUANT(i,j):=QUANT(i,j)+QUANT(j,i)
+
+! Create flow variables only for geographically valid routes
+ forall(i,j,k in US | i<j) create(flow(i,j,k,k))   ! US-US: same US hub
+ forall(i,j,k in EU | i<j) create(flow(i,j,k,k))   ! EU-EU: same EU hub
+ forall(i,k in US, j,l in EU) create(flow(i,j,k,l)) ! US-EU: one US + one EU hub
+
+! Objective: total transport cost
+ Cost:= sum(i,j,k,l in CITIES | exists(flow(i,j,k,l)))
+                   QUANT(i,j)*calccost(i,j,k,l)*flow(i,j,k,l)
+
+! Exactly NHUBS hubs
+ sum(i in CITIES) hub(i) = NHUBS
+
+! One routing per origin-destination pair
+ forall(i,j in CITIES | i<j) sum(k,l in CITIES) flow(i,j,k,l) = 1
+ forall(i,j in US | i<j) sum(k in US) flow(i,j,k,k) = 1
+ forall(i,j in EU | i<j) sum(k in EU) flow(i,j,k,k) = 1
+
+! Flow variables only use hubs
+ forall(i,j,k,l in CITIES | exists(flow(i,j,k,l))) do
+  flow(i,j,k,l) <= hub(k)
+  flow(i,j,k,l) <= hub(l)
+ end-do
+
+ forall(i in CITIES) hub(i) is_binary
+ forall(i,j,k,l in CITIES | exists(flow(i,j,k,l))) flow(i,j,k,l) is_binary
+
+! Solve the problem
+ minimize(Cost)
+
+ declarations
+  sol_hub: array(CITIES) of real             ! Hub selection solution
+ end-declarations
+
+ forall(i in CITIES) sol_hub(i) := getsol(hub(i))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_hub
+ end-initializations
+
+!-----------------------------------------------------------------
+
+! Transport cost from i to j via hubs k and l
+ function calccost(i,j,k,l:integer):real
+  returned:=DIST(i,k)+FACTOR*DIST(k,l)+DIST(l,j)
+ end-function
+
+end-model
