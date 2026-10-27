@@ -1,0 +1,87 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file b3jobshop2_p.mos
+   `````````````````````
+   Job shop production planning,
+   second, generic formulation.
+
+   Three types of wallpaper pass through three machines in
+   different orders depending on the design. Processing times
+   differ based on surface and design. What order should the
+   paper be scheduled so that the order is completed as soon
+   as possible.
+
+   This second model formulation uses double indices so that
+   'start' is now defined by machine AND job. Duration and
+   sequence arrays are also expanded to machine and job.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "B-3 Job shop (2)"
+ uses "mmxprs", "mmsystem"
+
+ parameters
+  DATASOURCE = "../../data/scheduling_sequencing/b3jobshop2_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  JOBS: range                         ! Set of jobs (wall paper types)
+  MACH: range                         ! Set of machines (colors)
+
+  DUR: array(MACH,JOBS) of integer    ! Durations per machine and paper
+  NUMT: array(JOBS) of integer        ! Number of tasks per job
+  SEQ: array(JOBS,MACH) of integer    ! Machine sequence per job
+  NUMD: array(MACH) of integer        ! No. of jobs (disjunctions) per machine
+  DISJ: array(MACH,JOBS) of integer   ! List of jobs per machine
+
+  start: dynamic array(MACH,JOBS) of mpvar  ! Start times of tasks
+  finish: mpvar                       ! Schedule completion time
+  y: dynamic array(range) of mpvar    ! Disjunction variables
+  sol_start: dynamic array(MACH,JOBS) of real  ! Solution: start times
+ end-declarations
+
+ initializations from DATASOURCE
+  DUR NUMT SEQ NUMD DISJ
+ end-initializations
+
+ forall(m in MACH, j in JOBS | DUR(m,j)>0 ) create(start(m,j))
+
+ BIGM:=sum(m in MACH, j in JOBS) DUR(m,j)  ! Some (sufficiently) large value
+
+! Precedence constraints
+ forall(j in JOBS) finish >= start(SEQ(j,NUMT(j)),j) + DUR(SEQ(j,NUMT(j)),j)
+ forall(j in JOBS, m in 1..NUMT(j)-1)
+  start(SEQ(j,m),j)+DUR(SEQ(j,m),j) <= start(SEQ(j,m+1),j)
+
+! Disjunctions
+ d:=1
+ forall(m in MACH, i,j in 1..NUMD(m) | i<j) do
+  create(y(d))
+  y(d) is_binary
+  start(m,DISJ(m,i))+DUR(m,DISJ(m,i)) <= start(m,DISJ(m,j))+BIGM*y(d)
+  start(m,DISJ(m,j))+DUR(m,DISJ(m,j)) <= start(m,DISJ(m,i))+BIGM*(1-y(d))
+  d+=1
+ end-do
+
+! Bound on latest completion time
+ finish <= BIGM
+
+! Solve the problem: minimize latest completion time
+ minimize(finish)
+
+! Collect solution arrays
+ forall(m in MACH, j in JOBS | DUR(m,j)>0) sol_start(m,j) := getsol(start(m,j))
+
+ initializations to OUTFILE
+  evaluation of getobjval  as 'obj_val'
+  sol_start
+ end-initializations
+
+end-model

@@ -1,0 +1,5 @@
+! Data file for pricebrai_p.mos
+
+DEM:  150
+B:    [0 50 120 200]
+COST: [1.0 0.7 0.5]

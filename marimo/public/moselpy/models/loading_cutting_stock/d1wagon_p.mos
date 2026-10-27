@@ -1,0 +1,70 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file d1wagon_p.mos
+   ``````````````````
+   Load balancing of train wagons
+
+   Sixteen boxes must be loaded on three railway wagons.
+   Each wagon has a weight limit of 100 quintals. Which wagon
+   should each box be assigned so that the heaviest wagon load
+   is minimized.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "D-1 Wagon load balancing"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/loading_cutting_stock/d1wagon_p.dat"
+  OUTFILE    = ""
+  NB         = 16    ! Number of boxes
+  NW         = 3     ! Number of wagons
+ end-parameters
+
+ declarations
+  BOXES = 1..NB                        ! Set of boxes
+  WAGONS = 1..NW                       ! Set of wagons
+
+  WEIGHT: array(BOXES) of integer      ! Box weights
+  WMAX: integer                        ! Weight limit per wagon
+
+  ifload: array(BOXES,WAGONS) of mpvar ! 1 if box loaded on wagon, 0 otherwise
+  maxweight: mpvar                     ! Weight of the heaviest wagon load
+
+  sol_ifload: array(BOXES,WAGONS) of real ! Solution: box-to-wagon assignment
+ end-declarations
+
+ initializations from DATASOURCE
+  WEIGHT WMAX
+ end-initializations
+
+! Every box into one wagon
+ forall(b in BOXES) sum(w in WAGONS) ifload(b,w) = 1
+
+! Limit the weight loaded into every wagon
+ forall(w in WAGONS) sum(b in BOXES) WEIGHT(b)*ifload(b,w) <= maxweight
+
+! Bounds on maximum weight
+ maxweight <= WMAX
+ maxweight >= ceil((sum(b in BOXES) WEIGHT(b))/3)
+
+ forall(b in BOXES,w in WAGONS) ifload(b,w) is_binary
+
+! Minimize the heaviest load
+ minimize(maxweight)                    ! Start optimization
+
+! Collect solution
+ forall(b in BOXES, w in WAGONS) sol_ifload(b,w):= getsol(ifload(b,w))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_ifload
+ end-initializations
+
+end-model

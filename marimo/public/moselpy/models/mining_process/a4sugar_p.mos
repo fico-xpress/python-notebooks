@@ -1,0 +1,65 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file a4sugar_p.mos
+   ````````````````
+   Production of cane sugar
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Feb. 2002, rev. 2026
+*******************************************************!)
+
+model "A-4 Cane sugar production"
+ uses "mmxprs", "mmsystem"
+
+ parameters
+  DATASOURCE = "../../data/mining_process/a4sugar_p.dat"
+  OUTFILE    = ""
+  NW         = 11                      ! Number of wagon loads of sugar
+  NL         = 3                       ! Number of production lines
+ end-parameters
+
+ declarations
+  WAGONS = 1..NW                            ! Wagon loads
+  SLOTS  = 1..ceil(NW/NL)                  ! Time slots for production
+
+  LOSS: array(WAGONS) of real               ! Loss in kg/hour
+  LIFE: array(WAGONS) of real               ! Remaining time per lot
+  DUR: integer                              ! Duration of the production
+
+  process: array(WAGONS,SLOTS) of mpvar     ! 1 if wagon processed in slot, 0 otherwise
+
+  sol_process: array(WAGONS,SLOTS) of real
+ end-declarations
+
+ initializations from DATASOURCE
+  LOSS LIFE DUR
+ end-initializations
+
+! Objective: minimize total sugar loss
+ TotalLoss:= sum(w in WAGONS, s in SLOTS) s*DUR*LOSS(w)*process(w,s)
+
+! Assignment: every wagon is assigned exactly one slot
+ forall(w in WAGONS) sum(s in SLOTS) process(w,s) = 1
+
+! Wagon loads per time slot
+ forall(s in SLOTS) sum(w in WAGONS) process(w,s) <= NL
+
+! Limit on raw product life
+ forall(w in WAGONS) sum(s in SLOTS) s*process(w,s) <= LIFE(w)/DUR
+
+ forall(w in WAGONS, s in SLOTS) process(w,s) is_binary
+
+ minimize(TotalLoss)
+
+ forall(w in WAGONS, s in SLOTS) sol_process(w,s) := getsol(process(w,s))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_process
+ end-initializations
+
+end-model

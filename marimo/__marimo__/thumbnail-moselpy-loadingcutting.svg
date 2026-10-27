@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <clipPath id="card">
+      <rect x="48" y="48" width="1104" height="534" rx="24" />
+    </clipPath>
+  </defs>
+
+  <rect width="1200" height="630" fill="#edf4fb"/>
+  <rect x="48" y="48" width="1104" height="534" rx="24" fill="#ffffff" stroke="#dbe5ef" stroke-width="2"/>
+  <rect x="48" y="48" width="16" height="534" fill="#0a6de6" clip-path="url(#card)"/>
+
+  <!-- Cutting stock icon: stock bars cut into pieces -->
+  <rect x="710" y="251" width="49" height="54" fill="#0a6de6" opacity="0.2"/>
+  <rect x="680" y="341" width="79" height="54" fill="#0a6de6" opacity="0.2"/>
+  <g stroke="#0a6de6" stroke-width="4" fill="none">
+    <rect x="440" y="250" width="320" height="56" rx="6"/>
+    <rect x="440" y="340" width="320" height="56" rx="6"/>
+  </g>
+  <g stroke="#123554" stroke-width="5">
+    <line x1="530" y1="250" x2="530" y2="306"/>
+    <line x1="640" y1="250" x2="640" y2="306"/>
+    <line x1="710" y1="250" x2="710" y2="306"/>
+    <line x1="560" y1="340" x2="560" y2="396"/>
+    <line x1="680" y1="340" x2="680" y2="396"/>
+  </g>
+
+</svg>

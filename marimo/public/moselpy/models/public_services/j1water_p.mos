@@ -1,0 +1,73 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file j1water_p.mos
+   ``````````````````
+   Water conveyance/water supply management
+
+   A water transport network is provided. Nodes correspond to
+   cities, reservoirs, and pumping stations. Arcs correspond to
+   pipes. Pipe capacities are given. How much water should flow
+   through each pipe to maximize the flow in the network?
+
+   A fictitious source and sink are used to model the network.
+   A LP model based on the transport network representation
+   maximizes total flow through the network.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "J-1 Water supply"
+ uses "mmxprs"
+
+ parameters
+  NNODES     = 12                            ! Number of nodes in the network
+  SOURCE     = 11                            ! Source node index
+  SINK       = 12                            ! Sink node index
+  DATASOURCE = "../../data/public_services/j1water_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  ARCS:  range                               ! Set of arcs (auto-sized from PIPE)
+  NODES = 1..NNODES                          ! Set of nodes
+
+  PIPE: array(ARCS,1..2) of integer          ! From/to node for each arc
+  CAP:  array(ARCS) of integer               ! Capacity of each arc
+
+  flow: array(ARCS) of mpvar                 ! Flow on each arc
+ end-declarations
+
+ initializations from DATASOURCE
+  PIPE CAP
+ end-initializations
+
+! Objective: total flow into the sink
+ TotalFlow:= sum(a in ARCS | PIPE(a,2)=SINK) flow(a)
+
+! Flow balances at intermediate nodes
+ forall(n in NODES | n<>SOURCE and n<>SINK)
+  sum(a in ARCS | PIPE(a,1)=n) flow(a) = sum(a in ARCS | PIPE(a,2)=n) flow(a)
+
+! Capacity limits
+ forall(a in ARCS) flow(a) <= CAP(a)
+
+! Solve the problem
+ maximize(TotalFlow)
+
+ declarations
+  sol_flow: array(ARCS) of real              ! Flow on each arc
+ end-declarations
+
+ forall(a in ARCS) sol_flow(a) := getsol(flow(a))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_flow PIPE CAP
+ end-initializations
+
+end-model

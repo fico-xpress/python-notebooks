@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <clipPath id="card">
+      <rect x="48" y="48" width="1104" height="534" rx="24" />
+    </clipPath>
+  </defs>
+
+  <rect width="1200" height="630" fill="#edf4fb"/>
+  <rect x="48" y="48" width="1104" height="534" rx="24" fill="#ffffff" stroke="#dbe5ef" stroke-width="2"/>
+  <rect x="48" y="48" width="16" height="534" fill="#0a6de6" clip-path="url(#card)"/>
+
+  <!-- Banknotes with dollar sign -->
+  <g stroke="#0a6de6" stroke-width="4" fill="#ffffff" stroke-linejoin="round">
+    <rect x="460" y="190" width="300" height="160" rx="14" transform="rotate(-8 610 270)" opacity="0.5"/>
+    <rect x="440" y="230" width="320" height="170" rx="14" transform="rotate(4 600 315)" opacity="0.75"/>
+  </g>
+  <g transform="rotate(-2 600 330)">
+    <rect x="430" y="250" width="340" height="180" rx="14" fill="#ffffff" stroke="#123554" stroke-width="5"/>
+    <rect x="448" y="268" width="304" height="144" rx="8" fill="none" stroke="#0a6de6" stroke-width="3" opacity="0.6"/>
+    <circle cx="600" cy="340" r="52" fill="#0a6de6" fill-opacity="0.2" stroke="#123554" stroke-width="5"/>
+    <path fill="#123554" d="M597.3 356.8V342.9Q590.8 341 587.8 337.3Q584.7 333.5 584.7 328.1Q584.7 322.7 588.2 319Q591.6 315.3 597.3 314.7V311.4H602.1V314.7Q607.4 315.3 610.5 318.3Q613.7 321.3 614.5 326.2L606.1 327.3Q605.4 323.4 602.1 322V335Q610.1 337.2 613 340.6Q615.9 344 615.9 349.4Q615.9 355.4 612.3 359.6Q608.6 363.7 602.1 364.6V370.8H597.3V364.8Q591.6 364.1 588 360.5Q584.4 356.9 583.4 350.4L592.1 349.4Q592.6 352.1 594.1 354Q595.5 355.9 597.3 356.8ZM597.3 321.9Q595.4 322.6 594.2 324.2Q593 325.8 593 327.7Q593 329.5 594.1 331Q595.2 332.5 597.3 333.4ZM602.1 357.3Q604.6 356.8 606.2 355Q607.8 353.1 607.8 350.6Q607.8 348.4 606.4 346.8Q605.1 345.2 602.1 344.3Z"/>
+    <circle cx="480" cy="340" r="10" fill="#0a6de6" opacity="0.6"/>
+    <circle cx="720" cy="340" r="10" fill="#0a6de6" opacity="0.6"/>
+  </g>
+
+</svg>

@@ -1,0 +1,93 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file i6build_p.mos
+   ``````````````````
+   Personnel planning at a construction site
+
+   A company must plan the number of construction workers at a
+   specific site for a 6-month planning horizon. Workers can
+   arrive from other sites (up to 3 per month) or depart (up to
+   1/3 of those on site). Under- and over-staffing are allowed
+   with penalty costs. Minimize total staffing cost.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "I-6 Construction site personnel"
+ uses "mmxprs"
+
+ parameters
+  FIRST      = 3                             ! First month index (March = 3)
+  LAST       = 8                             ! Last month index (August = 8)
+  DATASOURCE = "../../data/timetabling_personnel/i6build_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  MONTHS = FIRST..LAST                       ! Set of time periods
+
+  CARR, CLEAVE: integer                      ! Cost per worker arrival/departure
+  COVER, CUNDER: integer                     ! Cost of over-/understaffing
+  NSTART, NFINAL: integer                    ! Workers at beginning/end of plan
+  REQ: array(MONTHS) of integer              ! Required workers per month
+
+  onsite:       array(MONTHS) of mpvar       ! Workers on site each month
+  arrive, leave: array(MONTHS) of mpvar      ! Arrivals and departures
+  over, under:  array(MONTHS) of mpvar       ! Over- and understaffing
+ end-declarations
+
+ initializations from DATASOURCE
+  CARR CLEAVE COVER CUNDER NSTART NFINAL REQ
+ end-initializations
+
+! Objective: total cost
+ Cost:= sum(m in MONTHS) (CARR*arrive(m) + CLEAVE*leave(m) +
+                          COVER*over(m) + CUNDER*under(m))
+
+! Satisfy monthly requirement
+ forall(m in MONTHS) onsite(m) - over(m) + under(m) = REQ(m)
+
+! Worker balance
+ forall(m in MONTHS)
+  onsite(m) = if(m>FIRST, onsite(m-1) - leave(m-1), NSTART) + arrive(m)
+ NFINAL = onsite(LAST) - leave(LAST)
+
+! Limits on departures, understaffing, arrivals; integrality
+ forall(m in MONTHS) do
+  leave(m)  <= 1/3*onsite(m)
+  under(m)  <= 1/4*onsite(m)
+  arrive(m) <= 3
+  arrive(m) is_integer; leave(m)  is_integer; onsite(m) is_integer
+  under(m)  is_integer; over(m)   is_integer
+ end-do
+
+! Solve the problem
+ minimize(Cost)
+
+ declarations
+  sol_onsite: array(MONTHS) of real          ! Workers on site per month
+  sol_arrive: array(MONTHS) of real          ! Arrivals per month
+  sol_leave:  array(MONTHS) of real          ! Departures per month
+  sol_over:   array(MONTHS) of real          ! Overstaffing per month
+  sol_under:  array(MONTHS) of real          ! Understaffing per month
+ end-declarations
+
+ forall(m in MONTHS) do
+  sol_onsite(m) := getsol(onsite(m))
+  sol_arrive(m) := getsol(arrive(m))
+  sol_leave(m)  := getsol(leave(m))
+  sol_over(m)   := getsol(over(m))
+  sol_under(m)  := getsol(under(m))
+ end-do
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_onsite sol_arrive sol_leave sol_over sol_under REQ
+ end-initializations
+
+end-model

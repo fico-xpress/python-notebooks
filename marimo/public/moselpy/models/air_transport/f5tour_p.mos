@@ -1,0 +1,140 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file f5tour_p.mos
+   `````````````````
+   Planning a flight tour
+
+   A government in south-east Asia is planning to establish
+   a system of supply aid by air. Due to widespread flooding,
+   only seven runways are still usable. They decide to make the
+   planes leave from the capital and then visit the 6 other
+   airports. In which order should the airports be visited to
+   minimize the total distance covered.
+
+   Since the distance matrix is symmetric, the data only contains
+   the upper triangle (distance from i to j, i<j); the other
+   half is completed by the code after the data is read. The
+   initial objective is found without constraints but contains
+   three sub-cycles that need to be excluded. We loop through
+   the subtours to eliminate the smallest one first by generating
+   additional constraints, and then resolve the problem. The
+   procedure calls itself recursively.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "F-5 Tour planning"
+ uses "mmxprs"
+
+ parameters
+  NCITIES    = 7                             ! Number of cities (airports)
+  DATASOURCE = "../../data/air_transport/f5tour_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ forward procedure breaksubtour
+
+ declarations
+  CITIES = 1..NCITIES                        ! Cities
+
+  DIST:  array(CITIES,CITIES) of integer     ! Distance between cities
+  NEXTC: array(CITIES) of integer            ! Next city after i in the solution
+
+  fly: array(CITIES,CITIES) of mpvar         ! 1 if flight from i to j
+ end-declarations
+
+ initializations from DATASOURCE
+  DIST
+ end-initializations
+
+! Fill lower triangle of symmetric distance matrix
+ forall(i,j in CITIES | i<j) DIST(j,i):=DIST(i,j)
+
+! Objective: total distance
+ TotalDist:= sum(i,j in CITIES | i<>j) DIST(i,j)*fly(i,j)
+
+! Visit every city once
+ forall(i in CITIES) sum(j in CITIES | i<>j) fly(i,j) = 1
+ forall(j in CITIES) sum(i in CITIES | i<>j) fly(i,j) = 1
+
+ forall(i,j in CITIES | i<>j) fly(i,j) is_binary
+
+! Solve the problem
+ minimize(TotalDist)
+
+! Eliminate subtours by adding cuts and re-solving
+ breaksubtour
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  NEXTC
+ end-initializations
+
+!-----------------------------------------------------------------
+
+ procedure breaksubtour
+  declarations
+   TOUR,SMALLEST,ALLCITIES: set of integer
+  end-declarations
+
+  forall(i in CITIES)
+   NEXTC(i):= integer(round(getsol(sum(j in CITIES) j*fly(i,j))))
+
+! Get (sub)tour containing city 1
+  TOUR:={}
+  first:=1
+  repeat
+   TOUR+={first}
+   first:=NEXTC(first)
+  until first=1
+  size:=getsize(TOUR)
+
+! Find smallest subtour
+  if size < NCITIES then
+   SMALLEST:=TOUR
+   if size>2 then
+    ALLCITIES:=TOUR
+    forall(i in CITIES) do
+     if(i not in ALLCITIES) then
+      TOUR:={}
+      first:=i
+      repeat
+       TOUR+={first}
+       first:=NEXTC(first)
+      until first=i
+      ALLCITIES+=TOUR
+      if getsize(TOUR)<size then
+       SMALLEST:=TOUR
+       size:=getsize(SMALLEST)
+      end-if
+      if size=2 then
+       break
+      end-if
+     end-if
+    end-do
+   end-if
+
+! Add a subtour breaking constraint
+   sum(i in SMALLEST) fly(i,NEXTC(i)) <= getsize(SMALLEST) - 1
+
+! Also exclude the inverse subtour (if size > 2)
+   if SMALLEST.size>2 then
+    sum(i in SMALLEST) fly(NEXTC(i),i) <= getsize(SMALLEST) - 1
+   end-if
+
+! Add a stronger subtour elimination cut
+   sum(i in SMALLEST,j in CITIES-SMALLEST) fly(i,j) >= 1
+
+! Re-solve the problem
+   minimize(TotalDist)
+
+   breaksubtour
+  end-if
+ end-procedure
+
+end-model

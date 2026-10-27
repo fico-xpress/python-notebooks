@@ -1,0 +1,54 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file approx2_p.mos
+   ````````````````
+   Function approximation via piecewise linear expression   
+
+   In this example, we aim to represent f as a function of x 
+   that is specified via four line segments between the five 
+   points (X(i),FX(i)).  
+   We use the 'pwlin' construct to state f as a piecewise linear
+   constraint that will be handled directly by the MIP solver
+   although the constraint formulation requires the nonlinear
+   module 'mmxnlp'.
+
+   - for use with MoselPy -
+
+   (c) 2021-2026 Fair Isaac Corporation
+       author: S. Heipcke, July 2021, rev. 2026
+*******************************************************!)
+
+model "Approximation (pwlin)"
+ uses "mmxnlp"
+
+ parameters
+  DATASOURCE = "../../data/intro/approx2_p.dat"
+  OUTFILE    = ""
+  NB         = 5                  ! Number of breakpoints
+ end-parameters
+
+ declarations
+  BREAKS = 1..NB
+  X,FX: array(BREAKS) of real          ! Coordinates of break points
+  x,f: mpvar                           ! Decision variables
+ end-declarations
+
+ initializations from DATASOURCE
+  X FX
+ end-initializations
+
+ f = pwlin(x, union(i in BREAKS) [X(i),FX(i)])
+
+! Bounds
+ X(1)<=x; x<=X(NB)
+
+! Solve the problem
+ minimize(f)
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'sol_f'
+  evaluation of getsol(x) as 'sol_x'
+ end-initializations
+end-model

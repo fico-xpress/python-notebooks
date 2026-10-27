@@ -7,6 +7,7 @@ FICO&reg; Xpress Python example notebooks built with [marimo](https://marimo.io/
 ## Getting started
 
 * [Running marimo notebooks in GitHub Codespaces](#running-marimo-notebooks-in-github-codespaces)
+  * [Editing notebooks in a Codespace](#editing-notebooks-in-a-codespace)
 * [Running marimo notebooks in molab](#running-marimo-notebooks-in-molab)
 * [Running marimo notebooks locally](#running-marimo-notebooks-locally)
 
@@ -47,6 +48,22 @@ Please note that the creation of the codespace may take 3-4 minutes; we ask for 
 
    <p align="center"><img src="docs/images/controls.png" alt="assignment notebook controls with sliders" width="550"></p>
 
+### Editing notebooks in a Codespace
+
+The server started by the Codespace runs in read-only run mode (`marimo run`): you can use sliders and other controls, but you cannot change the code. To edit a notebook, start a second marimo server in edit mode:
+
+1. Open a terminal in the Codespace (**Terminal** > **New Terminal**).
+2. Run the following command, which uses a different port than the read-only server (2718):
+
+   ```
+   marimo edit --host 0.0.0.0 --port 2719 --no-token marimo/
+   ```
+
+3. Open the **Ports** tab next to the terminal, find port **2719** and click the link under the **Forwarded Address** column to open the marimo editor in your browser.
+4. Open a notebook from the file list. You can now modify its code and cells; changes are saved to the file in your Codespace. Press `Ctrl+C` in the terminal to stop the editor when you are done.
+
+The read-only server on port 2718 keeps running and picks up saved changes when you reload its page.
+
 ## Running marimo notebooks in molab
 
 [molab](https://molab.marimo.io/) is marimo's free cloud-hosted notebook environment. Use it to learn from these public examples, explore the optimization models with interactive controls, and experiment with the code in your browser. You do not need to install Python locally or create a Codespace.
@@ -64,6 +81,17 @@ Click on a button below to run it with molab and follow the instructions:
 * **Unit Commitment:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/07_unitcommitment_indicators.py)
 * **Markowitz Portfolio Optimization:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/08_markowitz_multiobj.py)
 * **TSP with Callbacks:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/09_tsp_callbacks.py)
+* **MoselPy: Introduction:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/moselpy_intro.py)
+* **MoselPy: Mining and process industries:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/moselpy_mining_process.py)
+* **MoselPy: Scheduling and sequencing:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/moselpy_scheduling_sequencing.py)
+* **MoselPy: Production planning:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/moselpy_production_planning.py)
+* **MoselPy: Loading and cutting stock:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/moselpy_loading_cutting_stock.py)
+* **MoselPy: Ground transport:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/moselpy_ground_transport.py)
+* **MoselPy: Air transport:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/moselpy_air_transport.py)
+* **MoselPy: Telecommunications:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/moselpy_telecomm.py)
+* **MoselPy: Economics and finance:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/moselpy_economics_finance.py)
+* **MoselPy: Timetabling and personnel:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/moselpy_timetabling_personnel.py)
+* **MoselPy: Public services and utilities:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/moselpy_public_services.py)
 
 1. Choose **Run it now** to run the notebook on a temporary server. Temporary runs are not saved to your workspace, and sessions have time limits. **Fork** to make an editable copy in your own molab workspace. See the [molab documentation](https://docs.marimo.io/guides/molab/) for current execution, sharing, package, and storage behavior, and its [usage restrictions](https://molab.marimo.io/pages/molab/restrictions) for supported use. **Sign in** or create a molab account when prompted.
 2. If prompted, use marimo's package manager to install missing imports, including `xpress`. Then run the cells and try the sliders. Changes to your fork do not update the FICO repository.

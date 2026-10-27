@@ -1,0 +1,152 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file f5tour_cb_p.mos
+   ````````````````````
+   Planning a flight tour (callback-based subtour elimination)
+
+   Same TSP as f5tour_p.mos, but subtour elimination is done
+   via a PREINTSOL callback rather than sequential re-solves.
+
+   When the solver finds an integer solution:
+   - If it came from a heuristic (isheur=true): reject it
+     immediately with rejectintsol if it contains subtours.
+   - If it came from a B&B node (isheur=false): detect all
+     subtours and inject lazy subtour-elimination cuts via
+     addcuts before the node LP is re-solved.
+
+   Setting XPRS_MIPDUALREDUCTIONS=0 is required when adding
+   lazy cuts, to prevent dual reductions that could cut off the
+   optimal solution before all subtour constraints are known.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "F-5 Tour planning (callback)"
+ uses "mmxprs"
+
+ parameters
+  NCITIES    = 7                             ! Number of cities
+  DATASOURCE = "../../data/air_transport/f5tour_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ forward procedure cb_preintsol(isheur : boolean, cutoff : real)
+
+ declarations
+  CITIES = 1..NCITIES                        ! Set of cities
+
+  DIST:  array(CITIES,CITIES) of integer     ! Distance between cities
+  NEXTC: array(CITIES) of integer            ! Next city in tour
+
+  fly: array(CITIES,CITIES) of mpvar         ! 1 if flight from i to j
+ end-declarations
+
+ initializations from DATASOURCE
+  DIST
+ end-initializations
+
+! Symmetrize the upper-triangular distance matrix
+ forall(i,j in CITIES | i<j) DIST(j,i):=DIST(i,j)
+
+! Objective: total distance
+ TotalDist:= sum(i,j in CITIES | i<>j) DIST(i,j)*fly(i,j)
+
+! Visit every city exactly once
+ forall(i in CITIES) sum(j in CITIES | i<>j) fly(i,j) = 1
+ forall(j in CITIES) sum(i in CITIES | i<>j) fly(i,j) = 1
+
+ forall(i,j in CITIES | i<>j) fly(i,j) is_binary
+
+! Register callback: fires before each integer solution is accepted
+ setcallback(XPRS_CB_PREINTSOL, ->cb_preintsol)
+
+! Disable dual reductions: required when subtour constraints are
+! added lazily - prevents pruning branches before all cuts are known
+ setparam("XPRS_MIPDUALREDUCTIONS", 0)
+
+! Solve: callbacks fire automatically during B&B
+ minimize(TotalDist)
+
+! Extract the tour from the final solution
+ forall(i in CITIES)
+  NEXTC(i):= integer(round(getsol(sum(j in CITIES | i<>j) j*fly(i,j))))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  NEXTC
+ end-initializations
+
+!-----------------------------------------------------------------
+
+! Callback: triggered before each integer solution is accepted.
+! Detects subtours; rejects heuristic solutions or injects lazy
+! subtour-elimination cuts for B&B node solutions.
+ procedure cb_preintsol(isheur : boolean, cutoff : real)
+  declarations
+   TOL = 1e-8
+   SUBTOUR, VISITED: set of integer
+   nCitiesVisited, iCity: integer
+   CutRange: range
+   cut:   array(CutRange) of linctr
+   cutid: array(CutRange) of integer
+   ctype: array(CutRange) of integer
+   ncut:  integer
+  end-declarations
+
+  ! Build successor array from current (candidate) solution
+  forall(i in CITIES)
+   forall(j in CITIES)
+    if (getsol(fly(i,j)) >= 1-TOL) then
+     NEXTC(i):= j
+     break
+    end-if
+
+  ! Count cities reachable from city 1 (detects subtours)
+  nCitiesVisited:= 1; iCity:= 1
+  while (NEXTC(iCity) <> 1) do
+   iCity:= NEXTC(iCity)
+   nCitiesVisited+= 1
+  end-do
+
+  if nCitiesVisited < NCITIES then
+   if isheur then
+    ! Heuristic solution: cannot add cuts, reject immediately
+    rejectintsol
+   else
+    ! B&B node solution: find all subtours and add lazy cuts
+    VISITED:= {}
+    forall(iFirst in CITIES) do
+     if (iFirst not in VISITED) then
+      SUBTOUR:= {}
+      iCity:= iFirst
+      while (iCity not in SUBTOUR) do
+       SUBTOUR+= {iCity}
+       iCity:= NEXTC(iCity)
+      end-do
+      if (getsize(SUBTOUR) < NCITIES) then
+       ! Cut 1: at most |S|-1 legs of the subtour can be used
+       cutid(ncut):= 0; ctype(ncut):= CT_LEQ
+       cut(ncut):= sum(i in SUBTOUR) fly(i,NEXTC(i)) - (getsize(SUBTOUR) - 1)
+       ncut+= 1
+       ! Cut 2 (stronger): at least one arc must leave S
+       cutid(ncut):= 0; ctype(ncut):= CT_GEQ
+       cut(ncut):= sum(i in SUBTOUR, j in CITIES-SUBTOUR) fly(i,j) - 1
+       ncut+= 1
+      end-if
+      VISITED+= SUBTOUR
+     end-if
+    end-do
+    if ncut > 0 then
+     addcuts(cutid, ctype, cut)
+    end-if
+   end-if
+  end-if
+
+ end-procedure
+
+end-model

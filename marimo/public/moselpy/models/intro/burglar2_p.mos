@@ -1,0 +1,72 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file burglar2_p.mos
+   `````````````````
+   Knapsack problem
+
+   A burglar considers eight items that have different values
+   and weights. He wants to take a group of items that maximizes
+   the total value while the total weight is not more than the
+   maximum 'WTMAX' he can carry.
+
+   This IP model represents the so-called knapsack problem where
+   binary decision variable 'take(i)' takes value 1 if item 'i'
+   is taken; 0 otherwise. This implementation illustrates how
+   problem data could be read into tables from text files.
+   Instead of having the item data embedded in the Mosel model
+   file, we have the data in a file and use 'initializations from'.
+
+   Adapted for MoselPy: uses DATASOURCE parameter so the data
+   file path can be set from Python.
+
+   - for use with MoselPy -
+
+   (c) 2008 Fair Isaac Corporation
+       author: S. Heipcke, Aug. 2002, rev. 2026
+*******************************************************!)
+
+model "Burglar 2"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/intro/burglar_p.dat"
+  OUTFILE    = ""
+  WTMAX      = 102                    ! Maximum weight allowed
+ end-parameters
+
+ declarations
+  ITEMS: set of string           ! Set of items
+  VALUE: array(ITEMS) of real    ! Value of items
+  WEIGHT: array(ITEMS) of real   ! Weight of items
+ end-declarations
+
+ initializations from DATASOURCE
+  VALUE
+  WEIGHT
+ end-initializations
+
+ declarations
+  take: array(ITEMS) of mpvar    ! 1 if we take item i; 0 otherwise
+  public sol_take: array(ITEMS) of real
+ end-declarations
+
+! Objective: maximize total value
+ MaxVal:= sum(i in ITEMS) VALUE(i)*take(i)
+
+! Weight restriction
+ sum(i in ITEMS) WEIGHT(i)*take(i) <= WTMAX
+
+! All variables are 0/1
+ forall(i in ITEMS) take(i) is_binary
+
+ maximize(MaxVal)                 ! Solve the MIP-problem
+
+ forall(i in ITEMS) sol_take(i) := getsol(take(i))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_take
+ end-initializations
+end-model

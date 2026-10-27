@@ -1,0 +1,79 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file a1alloy_p.mos
+   ````````````````
+   Production of alloys
+
+   An order of steel must be met with a range of carbon,
+   copper, and manganese grades. Given the raw materials in
+   stock, the objective is to determine the composition of
+   the steel that minimizes the production cost.
+
+   - for use with MoselPy -
+
+   (c) 2008 Fair Isaac Corporation
+       author: S. Heipcke, Feb. 2002, rev. 2026
+*******************************************************!)
+
+model "A-1 Production of Alloys"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/mining_process/a1alloy_p.dat"
+  OUTFILE    = ""
+  NR         = 7                       ! Number of raw materials
+  NC         = 3                       ! Number of components
+ end-parameters
+
+ declarations
+  COMP = 1..NC                         ! Components (chemical elements)
+  RAW  = 1..NR                         ! Raw materials (alloys)
+
+  P: array(RAW,COMP) of real           ! Composition of raw materials (in percent)
+  PMIN,PMAX: array(COMP) of real       ! Min. & max. requirements for components
+  AVAIL: array(RAW) of real            ! Raw material availabilities
+  COST: array(RAW) of real             ! Raw material costs per tonne
+  DEM: real                            ! Amount of steel to produce
+  NAMES: array(RAW) of string          ! Names of raw materials
+
+  use: array(RAW) of mpvar             ! Quantity of raw material used
+  produce: mpvar                       ! Quantity of steel produced
+
+  sol_use: array(RAW) of real
+ end-declarations
+
+ initializations from DATASOURCE
+  P PMIN PMAX AVAIL COST DEM NAMES
+ end-initializations
+
+! Objective: minimize total raw material cost
+ Cost:= sum(r in RAW) COST(r)*use(r)
+
+! Quantity of steel produced = sum of raw material used
+ produce = sum(r in RAW) use(r)
+
+! Guarantee min. and max. percentages of every chemical element
+ forall(c in COMP) do
+  sum(r in RAW) P(r,c)*use(r) >= PMIN(c)*produce
+  sum(r in RAW) P(r,c)*use(r) <= PMAX(c)*produce
+ end-do
+
+! Use raw materials within their limit of availability
+ forall(r in RAW) use(r) <= AVAIL(r)
+
+! Satisfy the demand
+ produce >= DEM
+
+ minimize(Cost)
+
+ forall(r in RAW) sol_use(r) := getsol(use(r))
+
+ initializations to OUTFILE
+  evaluation of getobjval       as 'obj_val'
+  evaluation of getsol(produce) as 'sol_produce'
+  sol_use
+ end-initializations
+
+end-model

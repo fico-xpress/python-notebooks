@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <clipPath id="card">
+      <rect x="48" y="48" width="1104" height="534" rx="24" />
+    </clipPath>
+  </defs>
+
+  <rect width="1200" height="630" fill="#edf4fb"/>
+  <rect x="48" y="48" width="1104" height="534" rx="24" fill="#ffffff" stroke="#dbe5ef" stroke-width="2"/>
+  <rect x="48" y="48" width="16" height="534" fill="#0a6de6" clip-path="url(#card)"/>
+
+  <!-- Airplane icon (top view) with dashed flight route -->
+  <path d="M 380 460 Q 600 540 820 460" stroke="#0a6de6" stroke-width="4" stroke-dasharray="4 14" stroke-linecap="round" fill="none" opacity="0.6"/>
+  <circle cx="380" cy="460" r="10" fill="#123554"/>
+  <circle cx="820" cy="460" r="10" fill="#0a6de6"/>
+  <g transform="rotate(40 600 300)">
+    <path fill="#0a6de6" d="M 600 150 C 618 150 626 180 626 215 L 626 255 L 770 335 L 770 370 L 626 330 L 626 415 L 672 448 L 672 475 L 600 455 L 528 475 L 528 448 L 574 415 L 574 330 L 430 370 L 430 335 L 574 255 L 574 215 C 574 180 582 150 600 150 Z"/>
+    <path fill="#123554" d="M 600 162 C 610 162 614 176 614 190 L 586 190 C 586 176 590 162 600 162 Z"/>
+  </g>
+
+</svg>

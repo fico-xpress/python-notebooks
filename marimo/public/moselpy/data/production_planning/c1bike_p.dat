@@ -1,0 +1,13 @@
+! Data file for c1bike_p.mos
+
+DEM: [30000 15000 15000 25000 33000 40000 45000 45000 26000 14000 25000 30000]
+
+CNORM:  32
+COVER:  40
+CSTOCK:  5
+
+CAP:    30000
+
+ISTOCK:  2000
+
+MONTHS: ["Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug" "Sep" "Oct" "Nov" "Dec"]

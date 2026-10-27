@@ -1,0 +1,74 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file pricebrai2_p.mos
+   ```````````````````
+   Modeling price breaks:
+   All item discount pricing
+   - formulation as piecewise linear expression -
+   
+   This implementation represents the situation where we 
+   buy a certain number of items and we get discounts on 
+   all items that we buy if the quantity we buy lies in 
+   certain price bands. We have three price bands. If we 
+   buy a number of items in [0,B1) then for each item we 
+   pay COST1, if the quantity we buy lies in [B1,B2) we 
+   pay COST2 for each item. Finally if we buy an amount 
+   in [B2,B3) then we pay an amount COST3 for each item. 
+   This sort of pricing is called all item discount pricing.
+   
+   To model these item price breaks we use a 'pwlin' 
+   expression specified via a list of the linear segments.
+   This general constraint is handled directly by the MIP solver
+   although the constraint formulation requires the nonlinear
+   module 'mmxnlp'.
+  
+   - for use with MoselPy -
+
+   (c) 2021 Fair Isaac Corporation
+       author: S. Heipcke, July 2021, rev. 2026
+*******************************************************!)
+
+model "All item discount (pwlin)"
+ uses "mmxnlp"
+ 
+
+ parameters
+  OUTFILE = ""
+  NB         = 3                      ! Number of price bands
+ end-parameters
+
+ declarations
+  BREAKS = 1..NB
+  COST: array(BREAKS) of real           ! Cost per unit
+  x: mpvar                              ! Number of items bought
+  B: array(0..NB) of real               ! Break points of cost function
+  TotalCost: nlctr
+ end-declarations
+ 
+ DEM:= 150                              ! Demand
+ B:: [0, 50, 120, 200]
+ COST:: [ 1, 0.7, 0.5]
+
+ ! Objective: 1- Specification as list of piecewise linear segments
+ TotalCost:= pwlin(union(i in 1..3) [pws(B(i-1), COST(i)*x)])
+
+ ! Objective: 2- Specification as list of points
+ ! TotalCost:= pwlin(x, union(i in 1..3) [B(i-1), COST(i)*B(i-1), B(i), COST(i)*B(i)])
+
+! Meet the demand
+ x = DEM
+
+(! Uncomment to display the problem definition 
+ loadprob(TotalCost)
+ writeprob("","l")
+!)
+! Solve the problem
+ minimize(TotalCost)
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  evaluation of getsol(x) as 'sol_x'
+ end-initializations
+end-model

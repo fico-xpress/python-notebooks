@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <clipPath id="card">
+      <rect x="48" y="48" width="1104" height="534" rx="24" />
+    </clipPath>
+  </defs>
+  <rect width="1200" height="630" fill="#edf4fb"/>
+  <rect x="48" y="48" width="1104" height="534" rx="24" fill="#ffffff" stroke="#dbe5ef" stroke-width="2"/>
+  <rect x="48" y="48" width="16" height="534" fill="#0a6de6" clip-path="url(#card)"/>
+
+  <g stroke="#123554" stroke-width="5" stroke-linecap="round" fill="none">
+    <path d="M 450 440 L 450 190"/><path d="M 450 440 L 780 440"/>
+    <path d="M 450 190 l -9 14 M 450 190 l 9 14"/><path d="M 780 440 l -14 -9 M 780 440 l -14 9"/>
+  </g>
+  <path d="M 450 440 L 540 340 L 540 340 L 600 300 L 600 300 L 670 270 L 680 270 L 760 245" stroke="#0a6de6" stroke-width="6" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+  <g fill="#123554"><circle cx="540" cy="340" r="11"/><circle cx="600" cy="300" r="11"/><circle cx="680" cy="270" r="11"/></g>
+  <g stroke="#0a6de6" stroke-width="3" stroke-dasharray="8 8" opacity="0.6"><path d="M 540 340 L 540 440"/><path d="M 600 300 L 600 440"/><path d="M 680 270 L 680 440"/></g>
+
+</svg>

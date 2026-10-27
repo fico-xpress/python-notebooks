@@ -1,0 +1,81 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file e4deliver_p.mos
+   ````````````````````
+   Heating oil delivery: travelling salesman problem
+
+   A delivery truck departs from a depot (site 1) and must
+   visit a set of customers before returning. Each customer
+   has a given demand. The truck has a limited capacity.
+   The model finds the minimum distance tour that satisfies
+   all demands without exceeding truck capacity.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "E-4 Heating oil delivery (TSP)"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/ground_transport/e4deliver_p.dat"
+  OUTFILE    = ""
+  NS         = 7        ! Number of sites (depot + customers)
+  CAP        = 39000    ! Truck capacity (litres)
+ end-parameters
+
+ declarations
+  SITES   = 1..NS                             ! Set of all sites (1 = depot)
+  CLIENTS = 2..NS                             ! Customer sites only
+
+  DIST: array(SITES,SITES) of integer         ! Distance matrix between sites
+  DEM:  array(SITES) of integer               ! Demand at each site (0 for depot)
+
+  prec:  array(SITES,SITES) of mpvar          ! 1 if site i visited directly before j
+  quant: array(CLIENTS) of mpvar              ! Cumulative quantity delivered up to site
+
+  sol_prec: array(SITES,SITES) of real        ! Solution: tour predecessor matrix
+ end-declarations
+
+ initializations from DATASOURCE
+  DIST DEM
+ end-initializations
+
+! Objective: total travel distance
+ Distance:= sum(i,j in SITES | i<>j) DIST(i,j)*prec(i,j)
+
+! Each site entered exactly once
+ forall(j in CLIENTS) sum(i in SITES | i<>j) prec(i,j) = 1
+
+! Each site left exactly once
+ forall(i in CLIENTS) sum(j in SITES | i<>j) prec(i,j) = 1
+
+! Capacity and subtour elimination (MTZ constraints)
+ forall(i in CLIENTS) quant(i) <= CAP + (DEM(i)-CAP)*prec(1,i)
+
+ forall(i,j in CLIENTS | i<>j)
+  quant(j) >= quant(i) + DEM(j) - CAP + CAP*prec(i,j) + (CAP-DEM(j)-DEM(i))*prec(j,i)
+
+ forall(i in CLIENTS) do
+  quant(i) <= CAP
+  quant(i) >= DEM(i)
+ end-do
+
+ forall(i,j in SITES | i<>j) prec(i,j) is_binary
+
+! Solve the problem
+ minimize(Distance)
+
+! Collect solution
+ forall(i in SITES, j in SITES) sol_prec(i,j) := getsol(prec(i,j))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_prec
+ end-initializations
+
+end-model

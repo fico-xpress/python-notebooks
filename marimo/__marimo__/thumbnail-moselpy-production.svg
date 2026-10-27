@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <clipPath id="card">
+      <rect x="48" y="48" width="1104" height="534" rx="24" />
+    </clipPath>
+  </defs>
+
+  <rect width="1200" height="630" fill="#edf4fb"/>
+  <rect x="48" y="48" width="1104" height="534" rx="24" fill="#ffffff" stroke="#dbe5ef" stroke-width="2"/>
+  <rect x="48" y="48" width="16" height="534" fill="#0a6de6" clip-path="url(#card)"/>
+
+  <!-- Factory icon: sawtooth roof and chimney -->
+  <g stroke="#0a6de6" stroke-width="4" fill="none" stroke-linejoin="round">
+    <path d="M 450 420 L 450 300 L 520 260 L 520 300 L 590 260 L 590 300 L 660 260 L 660 420 Z"/>
+    <path d="M 660 420 L 750 420 L 750 200 L 710 200 L 710 260 L 660 260"/>
+  </g>
+  <g fill="#123554">
+    <rect x="480" y="340" width="40" height="40" rx="4"/>
+    <rect x="550" y="340" width="40" height="40" rx="4"/>
+    <rect x="690" y="340" width="40" height="80" rx="4"/>
+  </g>
+
+</svg>

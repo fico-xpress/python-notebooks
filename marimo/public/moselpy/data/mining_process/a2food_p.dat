@@ -1,0 +1,15 @@
+! Data file for a2food_p.mos
+
+P: [(oat 1)     13.6 7.1 7          ! Composition of raw materials (percentages)
+    (maize 1)    4.1 2.4 3.7
+    (molasses 1) 5   0.3 25 ]
+
+REQ: [9.5 2 6]                      ! Nutritional requirements
+
+AVAIL: [(oat) 11900 (maize) 23500 (molasses) 750]     ! Raw material availabilities (kg/day)
+COST:  [(oat) 0.13  (maize) 0.17   (molasses) 0.12]   ! Raw material prices ($/kg)
+
+                                    ! Cost of processing operations
+PCOST: [(grinding) 0.25 (blending) 0.05 (granulating) 0.42 (sieving) 0.17] 
+
+DEM: [9000 12000]                   ! Demands for food types

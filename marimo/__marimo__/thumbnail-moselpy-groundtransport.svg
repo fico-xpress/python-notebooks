@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <clipPath id="card">
+      <rect x="48" y="48" width="1104" height="534" rx="24" />
+    </clipPath>
+  </defs>
+
+  <rect width="1200" height="630" fill="#edf4fb"/>
+  <rect x="48" y="48" width="1104" height="534" rx="24" fill="#ffffff" stroke="#dbe5ef" stroke-width="2"/>
+  <rect x="48" y="48" width="16" height="534" fill="#0a6de6" clip-path="url(#card)"/>
+
+  <!-- Truck icon -->
+  <rect x="440" y="250" width="200" height="130" rx="8" fill="#0a6de6" opacity="0.12"/>
+  <g stroke="#0a6de6" stroke-width="4" fill="none" stroke-linejoin="round">
+    <rect x="440" y="250" width="200" height="130" rx="8"/>
+    <path d="M 640 290 L 710 290 L 760 340 L 760 380 L 640 380 Z"/>
+  </g>
+  <g fill="#123554">
+    <circle cx="505" cy="395" r="26"/>
+    <circle cx="705" cy="395" r="26"/>
+  </g>
+  <g fill="#ffffff">
+    <circle cx="505" cy="395" r="9"/>
+    <circle cx="705" cy="395" r="9"/>
+  </g>
+
+</svg>

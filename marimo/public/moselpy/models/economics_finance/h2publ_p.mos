@@ -1,0 +1,84 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file h2publ_p.mos
+   `````````````````
+   Planning a publicity campaign for a new product
+
+   A company launches a new product and reaches out to a
+   publicity agency to develop a publicity campaign. A
+   maximum budget is defined for this campaign. For each
+   media type (e.g. radio, tv, newspaper, etc.), there are
+   the people potentially reached, the cost, the maximum use,
+   and the index of perception quality. The campaign must
+   reach at least a given number of people. Which media should
+   be chosen and in which proportions to maximize the total
+   sum of indexes of perception quality?
+
+   This problem is represented with a simple IP model.
+   The model is implemented generically (data arrays read
+   from file) to make modifying the input data easy.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "H-2 Publicity"
+ uses "mmxprs"
+
+ parameters
+  NMEDIA     = 6                             ! Number of media types
+  BUDGET     = 250000                        ! Available publicity budget
+  TARGET     = 100000                        ! Number of people to be reached
+  DATASOURCE = "../../data/economics_finance/h2publ_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  MEDIA = 1..NMEDIA                          ! Set of media types
+
+  REACH:  array(MEDIA) of integer            ! Number of people reached
+  COST:   array(MEDIA) of integer            ! Unitary cost
+  MAXUSE: array(MEDIA) of integer            ! Maximum use
+  SCORE:  array(MEDIA) of integer            ! Quality rating
+
+  use: array(MEDIA) of mpvar                 ! Use made of different media
+ end-declarations
+
+ initializations from DATASOURCE
+  REACH COST MAXUSE SCORE
+ end-initializations
+
+! Objective: quality of perception of the campaign
+ Perceive:= sum(m in MEDIA) SCORE(m)*use(m)
+
+! Budgetary limit
+ sum(m in MEDIA) COST(m)*use(m) <= BUDGET
+
+! Outreach of campaign
+ sum(m in MEDIA) REACH(m)*use(m) >= TARGET
+
+ forall(m in MEDIA) do
+  use(m) is_integer
+  use(m) <= MAXUSE(m)
+ end-do
+
+! Solve the problem
+ maximize(Perceive)
+
+ declarations
+  sol_use: array(MEDIA) of real              ! Number of uses per media type
+ end-declarations
+
+ forall(m in MEDIA) sol_use(m) := getsol(use(m))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  evaluation of getsol(sum(m in MEDIA) REACH(m)*use(m)) as 'total_reach'
+  sol_use
+ end-initializations
+
+end-model

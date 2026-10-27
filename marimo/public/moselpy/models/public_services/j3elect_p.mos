@@ -1,0 +1,128 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file j3elect_p.mos
+   ``````````````````
+   Grouping quarters to election districts
+
+   For elections, a capital is divided into 14 quarters.
+   An electoral district is formed by adjacent quarters with
+   between MINPOP and MAXPOP voters. Five districts are chosen
+   that partition all quarters and maximize the number of
+   districts where the target candidate wins the majority.
+
+   Data preprocessing enumerates all valid districts by a
+   recursive neighbor-expansion procedure. RDIST is finalized
+   after preprocessing; the MIP then selects the best
+   partition.
+
+   Note: this adapted version inlines the preprocessing code
+   from j3elect_calc.mos directly, removing the 'include'
+   directive to make the model self-contained.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Apr. 2002, rev. 2026
+*******************************************************!)
+
+model "J-3 Rigging elections"
+ uses "mmxprs"
+
+ parameters
+  NQUARTERS  = 14                            ! Number of quarters
+  REQD       = 6                             ! Required number of districts
+  DATASOURCE = "../../data/public_services/j3elect_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  QUARTERS = 1..NQUARTERS                    ! Set of quarters
+  RDIST: range                               ! Set of election districts
+  RN:    range                               ! Neighbor index range
+
+  NUMD: integer                              ! Number of possible districts found
+  NEIGHB: dynamic array(QUARTERS,RN) of integer ! Neighboring quarters
+  POP:   array(QUARTERS) of integer          ! Number of electors (in 1000)
+  VOTES: array(QUARTERS) of real             ! Favorable votes (in 1000)
+  MINPOP, MAXPOP, MINSINGLE: integer         ! Population limits
+
+  MAJ:   array(RDIST) of integer             ! 1 if district has majority
+  DISTR: array(RDIST,QUARTERS) of integer    ! 1 if quarter in district
+ end-declarations
+
+ initializations from DATASOURCE
+  NEIGHB POP VOTES MINPOP MAXPOP MINSINGLE
+ end-initializations
+
+!---- Preprocessing procedures (inlined from j3elect_calc.mos) ----
+
+ procedure savedistr(sQ: set of integer)
+  NUMD+=1
+  forall(q in sQ) DISTR(NUMD,q):=1
+ end-procedure
+
+ procedure addneighb(toadd:integer, sQ:set of integer)
+  declarations
+   nQ: set of integer
+  end-declarations
+  nQ:=sQ+{toadd}
+  if(sum(q in nQ) POP(q) >= MINPOP) then
+   savedistr(nQ)
+  end-if
+  forall(p in RN | exists(NEIGHB(toadd,p)))
+   if(sum(q in nQ) POP(q)+POP(NEIGHB(toadd,p))<=MAXPOP) then
+    addneighb(NEIGHB(toadd,p), nQ)
+   end-if
+ end-procedure
+
+ procedure calculatedistr
+  NUMD:=0
+  forall(q in QUARTERS) do
+   if (POP(q) >= MINSINGLE and q<>10) then
+    savedistr({q})
+   end-if
+   forall(p in RN | exists(NEIGHB(q,p)))
+    if(POP(q)+POP(NEIGHB(q,p))<=MAXPOP) then
+     addneighb(NEIGHB(q,p),{q})
+    end-if
+  end-do
+  forall(d in 1..NUMD)
+   MAJ(d):= if(((sum(q in QUARTERS | DISTR(d,q)>0) VOTES(q)) /
+                (sum(q in QUARTERS | DISTR(d,q)>0) POP(q)) >= 0.5), 1, 0)
+  finalize(RDIST)
+ end-procedure
+
+!---- Run preprocessing to generate all valid districts ----
+ calculatedistr
+
+!---- MIP model ----
+
+ declarations
+  choose:     array(RDIST) of mpvar          ! 1 if district chosen
+  sol_choose: array(RDIST) of real           ! Chosen districts
+ end-declarations
+
+! Objective: number of districts with majority votes
+ Votes:= sum(d in RDIST) MAJ(d)*choose(d)
+
+! Every quarter must belong to exactly one chosen district
+ forall(q in QUARTERS) sum(d in RDIST) DISTR(d,q)*choose(d) = 1
+
+! Desired number of districts
+ sum(d in RDIST) choose(d) = REQD
+
+ forall(d in RDIST) choose(d) is_binary
+
+! Solve the problem
+ maximize(Votes)
+
+ forall(d in RDIST) sol_choose(d) := getsol(choose(d))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_choose DISTR MAJ
+ end-initializations
+
+end-model

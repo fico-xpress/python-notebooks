@@ -1,0 +1,92 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file c2glass_p.mos
+   ``````````````````
+   Planning the production of glasses
+
+   A French company produces 6 types of drinking glasses.
+   Each product has varying production cost, storage cost,
+   initial stock, and storage space requirements. The time it
+   takes a worker and machine to create each batch of glasses
+   also varies. How much of each type of glasses should be
+   produced in each period so that the total (production and
+   storage) cost is minimized?
+
+   A balance constraint is necessary to define the glasses
+   stored from one period to the next.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "C-2 Glass production"
+ uses "mmxprs", "mmsystem"
+
+ parameters
+  DATASOURCE = "../../data/production_planning/c2glass_p.dat"
+  OUTFILE    = ""
+  NT         = 12                      ! Number of weeks in planning period
+  NP         = 6                       ! Number of products
+ end-parameters
+
+ declarations
+  WEEKS = 1..NT
+  PRODS = 1..NP                        ! Set of products
+
+  CAPW,CAPM: integer                   ! Capacity of workers and machines
+  CAPS: integer                        ! Storage capacity
+  DEM: array(PRODS,WEEKS) of integer   ! Demand per product and per week
+  CPROD: array(PRODS) of integer       ! Production cost per product
+  CSTOCK: array(PRODS) of integer      ! Storage cost per product
+  ISTOCK: array(PRODS) of integer      ! Initial stock levels
+  FSTOCK: array(PRODS) of integer      ! Min. final stock levels
+  TIMEW,TIMEM: array(PRODS) of integer ! Worker and machine time per unit
+  SPACE: array(PRODS) of integer       ! Storage space required by products
+
+  produce: array(PRODS,WEEKS) of mpvar ! Production of products per week
+  store: array(PRODS,WEEKS) of mpvar   ! Amount stored at end of week
+
+  sol_produce: array(PRODS,WEEKS) of real ! Solution: production quantities
+  sol_store: array(PRODS,WEEKS) of real   ! Solution: stock levels
+ end-declarations
+
+ initializations from DATASOURCE
+  CAPW CAPM CAPS DEM CSTOCK CPROD ISTOCK FSTOCK TIMEW TIMEM SPACE
+ end-initializations
+
+! Objective: sum of production and storage costs
+ Cost:=
+  sum(p in PRODS, t in WEEKS) (CPROD(p)*produce(p,t) + CSTOCK(p)*store(p,t))
+
+! Stock balances
+ forall(p in PRODS, t in WEEKS)
+  store(p,t) = if(t>1, store(p,t-1), ISTOCK(p)) + produce(p,t) - DEM(p,t)
+
+! Final stock levels
+ forall(p in PRODS) store(p,NT) >= FSTOCK(p)
+
+! Capacity constraints
+ forall(t in WEEKS) do
+  sum(p in PRODS) TIMEW(p)*produce(p,t) <= CAPW     ! Workers
+  sum(p in PRODS) TIMEM(p)*produce(p,t) <= CAPM     ! Machines
+  sum(p in PRODS) SPACE(p)*store(p,t)   <= CAPS     ! Storage
+ end-do
+
+! Solve the problem
+ minimize(Cost)
+
+! Collect solution arrays
+ forall(p in PRODS, t in WEEKS) sol_produce(p,t) := getsol(produce(p,t))
+ forall(p in PRODS, t in WEEKS) sol_store(p,t)   := getsol(store(p,t))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_produce
+  sol_store
+ end-initializations
+
+end-model

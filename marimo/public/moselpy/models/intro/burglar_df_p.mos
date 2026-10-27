@@ -1,0 +1,65 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file burglar_df_p.mos
+   `````````````````````
+   Knapsack problem - DataFrame format
+
+   A burglar considers eight items that have different values
+   and weights. He wants to take a group of items that maximizes
+   the total value while the total weight is not more than the
+   maximum 'WTMAX' he can carry.
+
+   Item data is stored in a 2D array I(FIELDS, ITEMS) where
+   FIELDS = {'value', 'weight'} and ITEMS are item names.
+   This maps directly to a pd.DataFrame passed from Python
+   (rows = fields, columns = items).
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, July 2006, rev. 2026
+*******************************************************!)
+
+model "Burglar (DataFrame format)"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/intro/burglar_df_p.dat"
+  OUTFILE    = ""
+  WTMAX      = 102                    ! Maximum weight allowed
+ end-parameters
+
+ declarations
+  FIELDS: set of string              ! {'value', 'weight'}
+  ITEMS:  set of string              ! Item names (populated from data)
+
+  I: array(FIELDS, ITEMS) of real    ! Item data in DataFrame layout
+
+  take: array(ITEMS) of mpvar        ! 1 if item i is taken, 0 otherwise
+  sol_take: array(ITEMS) of real     ! Solution: selection per item
+ end-declarations
+
+ initializations from DATASOURCE
+  I
+ end-initializations
+
+! Objective: maximize total value
+ MaxVal:= sum(i in ITEMS) I("value", i)*take(i)
+
+! Weight restriction
+ sum(i in ITEMS) I("weight", i)*take(i) <= WTMAX
+
+! All variables are 0/1
+ forall(i in ITEMS) take(i) is_binary
+
+ maximize(MaxVal)
+
+ forall(i in ITEMS) sol_take(i) := getsol(take(i))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_take
+ end-initializations
+end-model

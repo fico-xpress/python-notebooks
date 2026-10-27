@@ -1,0 +1,76 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file d4backup_p.mos
+   ```````````````````
+   Bin packing: backup of files onto external storage units
+
+   You would like to backup your 16 files onto external storage
+   units ('disks') with 1.44Gb of capacity. How should the files
+   be distributed in order to minimize the number of disks used?
+   This is a simple bin-packing problem since each file can only
+   be saved to one disk.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "D-4 Bin packing"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/loading_cutting_stock/d4backup_p.dat"
+  OUTFILE    = ""
+  NF         = 16    ! Number of files
+ end-parameters
+
+ declarations
+  ND: integer                          ! Number of disks
+  FILES = 1..NF                        ! Set of files
+  DISKS: range                         ! Set of disks
+
+  CAP:  integer                        ! Disk size
+  SIZE: array(FILES) of integer        ! Size of files to be saved
+ end-declarations
+
+ initializations from DATASOURCE
+  CAP SIZE
+ end-initializations
+
+! Provide a sufficiently large number of disks
+ ND:= ceil((sum(f in FILES) SIZE(f))/CAP)
+ DISKS:= 1..ND
+
+ declarations
+  ifsave: array(FILES,DISKS) of mpvar  ! 1 if file saved on disk, 0 otherwise
+  diskuse: mpvar                       ! Number of disks used
+
+  sol_ifsave: array(FILES,DISKS) of real ! Solution: file-to-disk assignment
+ end-declarations
+
+! Limit the number of disks used
+ forall(f in FILES) diskuse >= sum(d in DISKS) d*ifsave(f,d)
+
+! Every file onto a single disk
+ forall(f in FILES) sum(d in DISKS) ifsave(f,d) = 1
+
+! Capacity limit of disks
+ forall(d in DISKS) sum(f in FILES) SIZE(f)*ifsave(f,d) <= CAP
+
+ forall(d in DISKS,f in FILES) ifsave(f,d) is_binary
+
+! Minimize the total number of disks used
+ minimize(diskuse)
+
+! Collect solution
+ forall(f in FILES, d in DISKS) sol_ifsave(f,d):= getsol(ifsave(f,d))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_ifsave
+ end-initializations
+
+end-model

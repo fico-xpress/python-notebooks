@@ -1,0 +1,88 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file g3routing_p.mos
+   ````````````````````
+   Routing telephone calls in a private network
+
+   A private telephone network connects 5 French cities.
+   The circuit capacity between cities is known. At any point
+   in time, the network expects certain circuit demands. Is it
+   feasible to satisfy all these demands? How much can be
+   transmitted, if not all? Which is the assigned routing for
+   the circuits?
+
+   Each path between cities is represented by a list of arcs
+   specified as an array between two directly connected cities.
+   The problem is defined as a MIP, but the LP solution already
+   provides integer values. The solution display reports
+   unmet demand and also calculates unused arc capacities.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Apr. 2002, rev. 2026
+*******************************************************!)
+
+model "G-3 Routing telephone calls"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/telecomm/g3routing_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  CALLS: set of string                       ! Set of demands (auto-populated)
+  ARCS:  set of string                       ! Set of arcs (auto-populated)
+  PATHS: range                               ! Set of paths (routes) for demands
+
+  CAP:    array(ARCS)  of integer            ! Capacity of arcs
+  DEM:    array(CALLS) of integer            ! Demands between pairs of cities
+  CINDEX: array(PATHS) of string             ! Call (demand) index per path index
+ end-declarations
+
+ initializations from DATASOURCE
+  CAP DEM CINDEX
+ end-initializations
+
+ NARC:=getsize(ARCS)
+
+ declarations
+  ROUTE: array(PATHS,1..NARC) of string      ! List of arcs composing the routes
+  flow:  array(PATHS) of mpvar               ! Flow on paths
+ end-declarations
+
+ initializations from DATASOURCE
+  ROUTE
+ end-initializations
+
+! Objective: total flow on the arcs
+ TotFlow:= sum(p in PATHS) flow(p)
+
+! Flow within demand limits
+ forall(d in CALLS) sum(p in PATHS | CINDEX(p) = d) flow(p) <= DEM(d)
+
+! Arc capacities
+ forall(a in ARCS)
+  sum(p in PATHS, b in 1..NARC | ROUTE(p,b)=a) flow(p) <= CAP(a)
+
+ forall(p in PATHS) flow(p) is_integer
+
+! Solve the problem
+ maximize(TotFlow)
+
+ declarations
+  sol_flow: array(PATHS) of real             ! Flow on each path
+ end-declarations
+
+ forall(p in PATHS) sol_flow(p) := getsol(flow(p))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_flow DEM CAP CINDEX
+  ROUTE as 'sol_route'
+ end-initializations
+
+end-model

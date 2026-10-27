@@ -1,0 +1,89 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file c4compo_p.mos
+   ``````````````````
+   Planning the production of electronic components
+
+   A company produces cards with microchips and electronic
+   badges. They also produce the components for these. The
+   company would like to meet the forecasted demand while
+   minimizing the cost associated to production, storage,
+   and product changes.
+
+   CADD and CRED are Mosel parameters so that Python can
+   override them via exec_params for sensitivity analysis:
+   load once, vary CADD/CRED, run many times.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "C-4 Electronic components"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/production_planning/c4compo_p.dat"
+  OUTFILE    = ""
+  CADD       = 1.0    ! Cost of additional production (overridable)
+  CRED       = 0.5    ! Cost of reduced production (overridable)
+  NT         = 6      ! Number of time periods (months)
+  NP         = 4      ! Number of components
+ end-parameters
+
+ declarations
+  MONTHS = 1..NT
+  PRODS = 1..NP                          ! Set of components
+
+  DEM: array(PRODS,MONTHS) of integer    ! Demand of components per month
+  CPROD: array(PRODS) of integer         ! Production costs
+  CSTOCK: array(PRODS) of real           ! Storage costs
+  ISTOCK,FSTOCK: array(PRODS) of integer ! Initial and final stock levels
+  PNAME: array(PRODS) of string          ! Product names
+
+  produce: array(PRODS,MONTHS) of mpvar  ! Quantities produced per month
+  store: array(PRODS,MONTHS) of mpvar    ! Stock levels at end of every month
+  reduce: array(MONTHS) of mpvar         ! Reduction of production per month
+  add: array(MONTHS) of mpvar            ! Increase of production per month
+
+  sol_produce: array(PRODS,MONTHS) of real ! Solution: production quantities
+  sol_store: array(PRODS,MONTHS) of real   ! Solution: stock levels
+ end-declarations
+
+ initializations from DATASOURCE
+  DEM CPROD CSTOCK ISTOCK FSTOCK PNAME
+ end-initializations
+
+! Objective: total cost of production, storage, and change of prod. level
+ Cost:= sum(p in PRODS, t in MONTHS) (CPROD(p)*produce(p,t) +
+                                      CSTOCK(p)*store(p,t)) +
+        sum(t in 2..NT) (CRED*reduce(t) + CADD*add(t))
+
+! Stock balance constraints (satisfy demands)
+ forall(p in PRODS, t in MONTHS)
+  store(p,t) = if(t>1, store(p,t-1), ISTOCK(p)) + produce(p,t) - DEM(p,t)
+
+! Changes to the level of production
+ forall(t in 2..NT)
+  sum(p in PRODS) (produce(p,t) - produce(p,t-1)) = add(t) - reduce(t)
+
+! Guarantee final stock levels
+ forall(p in PRODS) store(p,NT) >= FSTOCK(p)
+
+! Solve the problem
+ minimize(Cost)
+
+! Collect solution arrays
+ forall(p in PRODS, t in MONTHS) sol_produce(p,t) := getsol(produce(p,t))
+ forall(p in PRODS, t in MONTHS) sol_store(p,t)   := getsol(store(p,t))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_produce
+  sol_store
+ end-initializations
+
+end-model

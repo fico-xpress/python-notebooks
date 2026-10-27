@@ -1,0 +1,77 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file b6linebal_p.mos
+   ````````````````````
+   Assembly line balancing
+
+   An electronics factory has 4 workstations that can
+   produce amplifiers. Each amplifier has 12 production
+   steps. The manager would like to distribute these steps
+   across the workstations to balance the workload and complete
+   the amplifiers in the shortest possible time. Each step
+   must be assigned a workstation and each station can only
+   have one step at a time. Which steps should be assigned to
+   each station to achieve the fastest amplifier production time?
+
+   This mixed integer problem uses 'ARC' to define the relationship
+   between steps and their predecessors. Binary variables are used
+   to assign tasks to stations (machines).
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "B-6 Assembly line balancing"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/scheduling_sequencing/b6linebal_p.dat"
+  OUTFILE    = ""
+  NW         = 4                        ! Number of workstations
+  NT         = 12                       ! Number of tasks
+ end-parameters
+
+ declarations
+  MACH=1..NW                            ! Set of workstations
+  TASKS=1..NT                           ! Set of tasks
+
+  DUR: array(TASKS) of integer          ! Durations of tasks
+  ARC: array(RA:range, 1..2) of integer ! Precedence relations between tasks
+
+  process: array(TASKS,MACH) of mpvar   ! 1 if task on machine, 0 otherwise
+  cycle: mpvar                          ! Duration of a production cycle
+  sol_process: array(TASKS,MACH) of real ! Solution: task-to-station assignment
+ end-declarations
+
+ initializations from DATASOURCE
+  DUR ARC
+ end-initializations
+
+! One workstation per task
+ forall(i in TASKS) sum(m in MACH) process(i,m) = 1
+
+! Sequence of tasks
+ forall(a in RA) sum(m in MACH) m*process(ARC(a,1),m) <=
+                  sum(m in MACH) m*process(ARC(a,2),m)
+
+! Cycle time
+ forall(m in MACH) sum(i in TASKS) DUR(i)*process(i,m) <= cycle
+
+ forall(i in TASKS, m in MACH) process(i,m) is_binary
+
+! Minimize the duration of a production cycle
+ minimize(cycle)
+
+! Collect solution array
+ forall(i in TASKS, m in MACH) sol_process(i,m) := getsol(process(i,m))
+
+ initializations to OUTFILE
+  evaluation of getobjval  as 'obj_val'
+  sol_process
+ end-initializations
+
+end-model

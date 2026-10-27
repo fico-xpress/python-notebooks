@@ -1,0 +1,100 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file b2flowshop_p.mos
+   `````````````````````
+   Flow shop production planning
+
+   A workshop has three machines to produce metal pipes.
+   A piece must go through each machine and cannot stop
+   unless it is between machines. What is the best order
+   of pieces so that the total time for completion is minimized
+   for all pieces?
+
+   This problem uses four variables to track which job is scheduled
+   in which position, which machines are empty, which jobs are
+   waiting between machines, and when jobs are starting.
+   Note that each job must be assigned a position and every
+   position ('rank') must be assigned a job. The 'rank' variables
+   are binary variables.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "B-2 Flow shop"
+ uses "mmxprs"
+
+ parameters
+  DATASOURCE = "../../data/scheduling_sequencing/b2flowshop_p.dat"
+  OUTFILE    = ""
+  NM         = 3                       ! Number of machines
+  NJ         = 6                       ! Number of jobs
+ end-parameters
+
+ declarations
+  MACH = 1..NM
+  RANKS = 1..NJ
+  JOBS = 1..NJ
+
+  DUR: array(MACH,JOBS) of integer     ! Durations of jobs on machines
+
+  rank: array(JOBS,RANKS) of mpvar     ! 1 if job j has rank k, 0 otherwise
+  empty: array(MACH,1..NJ-1) of mpvar  ! Space between jobs of ranks k and k+1
+  wtime: array(1..NM-1,RANKS) of mpvar ! Waiting time between machines m
+                                       ! and m+1 for job of rank k
+  start: array(MACH,RANKS) of mpvar    ! Start of job rank k on machine m
+  sol_start: array(MACH,RANKS) of real ! Solution: start times
+  sol_rank: array(JOBS,RANKS) of real  ! Solution: rank assignment
+ end-declarations
+
+ initializations from DATASOURCE
+  DUR
+ end-initializations
+
+! Objective: total waiting time on the last machine
+ TotWait:= sum(m in 1..NM-1,j in JOBS) (DUR(m,j)*rank(j,1)) +
+           sum(k in 1..NJ-1) empty(NM,k)
+
+! Every position gets a job
+ forall(k in RANKS) sum(j in JOBS) rank(j,k) = 1
+
+! Every job is assigned a rank
+ forall(j in JOBS) sum(k in RANKS) rank(j,k) = 1
+
+! Relations between the end of job rank k on machine m and start on machine m+1
+ forall(m in 1..NM-1,k in 1..NJ-1)
+  empty(m,k) + sum(j in JOBS) DUR(m,j)*rank(j,k+1) + wtime(m,k+1) =
+   wtime(m,k) + sum(j in JOBS) DUR(m+1,j)*rank(j,k) + empty(m+1,k)
+
+! Calculation of start times
+ forall(m in MACH, k in RANKS)
+  start(m,k) = sum(u in 1..m-1,j in JOBS) DUR(u,j)*rank(j,1) +
+               sum(p in 1..k-1,j in JOBS) DUR(m,j)*rank(j,p) +
+               sum(p in 1..k-1) empty(m,p)
+
+! First machine has no idle times
+ forall(k in 1..NJ-1) empty(1,k) = 0
+
+! First job has no waiting times
+ forall(m in 1..NM-1) wtime(m,1) = 0
+
+ forall(j in JOBS, k in RANKS) rank(j,k) is_binary
+
+! Solve the problem
+ minimize(TotWait)
+
+! Collect solution arrays
+ forall(m in MACH, k in RANKS) sol_start(m,k) := getsol(start(m,k))
+ forall(j in JOBS, k in RANKS) sol_rank(j,k)  := getsol(rank(j,k))
+
+ initializations to OUTFILE
+  evaluation of getobjval  as 'obj_val'
+  sol_start
+  sol_rank
+ end-initializations
+
+end-model

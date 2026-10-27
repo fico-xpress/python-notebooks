@@ -1,0 +1,5 @@
+! Data file for b4seq_p.mos
+
+REL: [ 2  5  4  0  0  8  9]
+DUR: [ 5  6  8  4  2  4  2]
+DUE: [10 21 15 10  5 15 22]

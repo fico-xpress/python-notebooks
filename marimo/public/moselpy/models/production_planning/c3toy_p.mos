@@ -1,0 +1,89 @@
+(!******************************************************
+   Mosel Example Problems
+   ======================
+
+   file c3toy_p.mos
+   ````````````````
+   Planning the production of toy lorries
+
+   A company produces two types of large toy lorry (trucks).
+   Each toy has 13 components. A subset of items can be assembled
+   by the company or subcontracted. Given the demand is the
+   same for both toys, how much should the company buy or
+   subcontract to meet demand and minimize cost?
+
+   Index sets are not fixed and are instead initialized from
+   the data file when reading the array data. The index sets of dense
+   arrays are automatically finalized by Mosel. CPROD and CAP are
+   initialized separately so Python can inject them via input_data.
+   String-indexed sets mean results come back as dicts with
+   string keys when read from Python.
+
+   - for use with MoselPy -
+
+   (c) 2008-2026 Fair Isaac Corporation
+       author: S. Heipcke, Mar. 2002, rev. 2026
+*******************************************************!)
+
+model "C-3 Toy production"
+ uses "mmxprs", "mmsystem"
+
+ parameters
+  DATASOURCE = "../../data/production_planning/c3toy_p.dat"
+  OUTFILE    = ""
+ end-parameters
+
+ declarations
+  ITEMS: set of string                 ! Set of all products
+  FINAL: set of string                 ! Set of final products
+  ASMBL: set of string                 ! Set of assembled products
+  PREPROD: set of string               ! Set of preproducts
+
+  CAP: array(ASMBL) of integer         ! Capacity of assembly lines
+  DEM: array(FINAL) of integer         ! Demand of lorries
+  CPROD: array(ASMBL) of real          ! Assembly costs
+  CBUY: array(ITEMS) of real           ! Purchase costs
+  REQ: array(ASMBL,PREPROD) of integer ! Items req. for assembling a product
+
+  produce: array(ASMBL) of mpvar       ! Quantity of items produced
+  buy: array(PREPROD) of mpvar         ! Quantity of items bought
+
+  sol_produce: array(ASMBL) of real    ! Solution: production quantities
+  sol_buy: array(PREPROD) of real      ! Solution: purchase quantities
+ end-declarations
+
+ initializations from DATASOURCE
+  DEM CBUY REQ CPROD CAP
+ end-initializations
+
+! Objective: total costs
+ Cost:= sum(p in PREPROD) CBUY(p)*buy(p) +
+         sum(p in ASMBL) CPROD(p)*produce(p)
+
+! Satisfy demands
+ forall(p in FINAL) produce(p) >= DEM(p)
+
+! Assembly balance
+ forall(p in PREPROD) buy(p) + if(p in ASMBL, produce(p), 0) >=
+                       sum(q in ASMBL) REQ(q,p)*produce(q)
+
+! Limits on assembly capacity
+ forall(p in ASMBL) produce(p) <= CAP(p)
+
+ forall(p in PREPROD) buy(p) is_integer
+ forall(p in ASMBL) produce(p) is_integer
+
+! Solve the problem
+ minimize(Cost)
+
+! Collect solution arrays
+ forall(p in ASMBL)  sol_produce(p) := getsol(produce(p))
+ forall(p in PREPROD) sol_buy(p)    := getsol(buy(p))
+
+ initializations to OUTFILE
+  evaluation of getobjval as 'obj_val'
+  sol_produce
+  sol_buy
+ end-initializations
+
+end-model

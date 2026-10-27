@@ -1,0 +1,7 @@
+! Data file for e6vanrent_p.mos
+
+REQ: [(1) 430 (2) 410 (3) 440 (4) 390 (5) 425 (6) 450]
+
+COST: [(3) 1700 (4) 2200 (5) 2600]
+
+NAMES: [(1) "Jan" (2) "Feb" (3) "Mar" (4) "Apr" (5) "May" (6) "Jun"]

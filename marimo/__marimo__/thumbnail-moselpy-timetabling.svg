@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <clipPath id="card">
+      <rect x="48" y="48" width="1104" height="534" rx="24" />
+    </clipPath>
+  </defs>
+
+  <rect width="1200" height="630" fill="#edf4fb"/>
+  <rect x="48" y="48" width="1104" height="534" rx="24" fill="#ffffff" stroke="#dbe5ef" stroke-width="2"/>
+  <rect x="48" y="48" width="16" height="534" fill="#0a6de6" clip-path="url(#card)"/>
+
+  <!-- Calendar icon: week grid with assigned shifts -->
+  <rect x="450" y="230" width="300" height="200" rx="14" fill="none" stroke="#0a6de6" stroke-width="4"/>
+  <rect x="450" y="230" width="300" height="50" rx="14" fill="#0a6de6" opacity="0.2"/>
+  <g stroke="#123554" stroke-width="6" stroke-linecap="round">
+    <line x1="500" y1="212" x2="500" y2="246"/>
+    <line x1="700" y1="212" x2="700" y2="246"/>
+  </g>
+  <g stroke="#dbe5ef" stroke-width="3">
+    <line x1="525" y1="280" x2="525" y2="430"/>
+    <line x1="600" y1="280" x2="600" y2="430"/>
+    <line x1="675" y1="280" x2="675" y2="430"/>
+    <line x1="450" y1="330" x2="750" y2="330"/>
+    <line x1="450" y1="380" x2="750" y2="380"/>
+  </g>
+  <g opacity="0.85">
+    <rect x="460" y="292" width="55" height="28" rx="5" fill="#0a6de6"/>
+    <rect x="610" y="292" width="55" height="28" rx="5" fill="#123554" opacity="0.7"/>
+    <rect x="535" y="342" width="55" height="28" rx="5" fill="#123554" opacity="0.7"/>
+    <rect x="685" y="342" width="55" height="28" rx="5" fill="#0a6de6"/>
+    <rect x="460" y="392" width="55" height="28" rx="5" fill="#0a6de6"/>
+    <rect x="610" y="392" width="55" height="28" rx="5" fill="#123554" opacity="0.7"/>
+  </g>
+
+</svg>
