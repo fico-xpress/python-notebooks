@@ -84,6 +84,7 @@ jobs:
               <li><a href="07_unitcommitment_indicators.html">Electricity generation unit commitment</a></li>
               <li><a href="08_markowitz_multiobj.html">Markowitz portfolio multi-objective optimization</a></li>
               <li><a href="09_tsp_callbacks.html">Solving a TSP problem using callbacks</a></li>
+              <li><a href="10_staff_scheduling_solpool.html">Staff scheduling with the solution pool</a></li>
               <li><a href="moselpy_intro.html">MoselPy: Introduction</a></li>
               <li><a href="moselpy_mining_process.html">MoselPy: Mining and process industries</a></li>
               <li><a href="moselpy_scheduling_sequencing.html">MoselPy: Scheduling and sequencing</a></li>

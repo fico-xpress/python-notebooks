@@ -81,6 +81,7 @@ Click on a button below to run it with molab and follow the instructions:
 * **Unit Commitment:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/07_unitcommitment_indicators.py)
 * **Markowitz Portfolio Optimization:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/08_markowitz_multiobj.py)
 * **TSP with Callbacks:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/09_tsp_callbacks.py)
+* **Staff Scheduling with the Solution Pool:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/10_staff_scheduling_solpool.py)
 * **MoselPy: Introduction:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/moselpy_intro.py)
 * **MoselPy: Mining and process industries:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/moselpy_mining_process.py)
 * **MoselPy: Scheduling and sequencing:** [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/fico-xpress/python-notebooks/blob/main/marimo/moselpy_scheduling_sequencing.py)

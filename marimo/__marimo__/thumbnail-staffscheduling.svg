@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <clipPath id="card">
+      <rect x="48" y="48" width="1104" height="534" rx="24" />
+    </clipPath>
+  </defs>
+
+  <rect width="1200" height="630" fill="#edf4fb"/>
+  <rect x="48" y="48" width="1104" height="534" rx="24" fill="#ffffff" stroke="#dbe5ef" stroke-width="2"/>
+  <rect x="48" y="48" width="16" height="534" fill="#0a6de6" clip-path="url(#card)"/>
+
+  <!-- Employee x day shift grid -->
+  <g opacity="0.9">
+    <rect x="430" y="210" width="62" height="52" rx="6" fill="#0072b2"/>
+    <rect x="500" y="210" width="62" height="52" rx="6" fill="#e69f00"/>
+    <rect x="570" y="210" width="62" height="52" rx="6" fill="#dbe5ef"/>
+    <rect x="640" y="210" width="62" height="52" rx="6" fill="#0072b2"/>
+    <rect x="710" y="210" width="62" height="52" rx="6" fill="#e69f00"/>
+    <rect x="430" y="270" width="62" height="52" rx="6" fill="#e69f00"/>
+    <rect x="500" y="270" width="62" height="52" rx="6" fill="#0072b2"/>
+    <rect x="570" y="270" width="62" height="52" rx="6" fill="#0072b2"/>
+    <rect x="640" y="270" width="62" height="52" rx="6" fill="#dbe5ef"/>
+    <rect x="710" y="270" width="62" height="52" rx="6" fill="#e69f00"/>
+    <rect x="430" y="330" width="62" height="52" rx="6" fill="#dbe5ef"/>
+    <rect x="500" y="330" width="62" height="52" rx="6" fill="#0072b2"/>
+    <rect x="570" y="330" width="62" height="52" rx="6" fill="#e69f00"/>
+    <rect x="640" y="330" width="62" height="52" rx="6" fill="#0072b2"/>
+    <rect x="710" y="330" width="62" height="52" rx="6" fill="#0072b2"/>
+    <rect x="430" y="390" width="62" height="52" rx="6" fill="#0072b2"/>
+    <rect x="500" y="390" width="62" height="52" rx="6" fill="#dbe5ef"/>
+    <rect x="570" y="390" width="62" height="52" rx="6" fill="#0072b2"/>
+    <rect x="640" y="390" width="62" height="52" rx="6" fill="#e69f00"/>
+    <rect x="710" y="390" width="62" height="52" rx="6" fill="#0072b2"/>
+  </g>
+  <line x1="710" y1="200" x2="710" y2="450" stroke="#123554" stroke-width="3"/>
+
+</svg>
